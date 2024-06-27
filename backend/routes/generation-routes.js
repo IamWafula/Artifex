@@ -22,8 +22,6 @@ async function getImageWaitTime(image_id){
 
     if (response.status == 200){
         const resJson = await response.json();
-        console.log(resJson)
-
         return resJson.wait_time
 
     }
@@ -43,13 +41,21 @@ async function getImageUrl(image_id){
     const url = `https://stablehorde.net/api/v2/generate/status/${image_id}`
 
     const response = await fetch(url , options);
+
+    switch (response.status){
+        case (200) :
+
+    }
+
     if (response.status == 200){
         const resJson = await response.json();
-        console.log(resJson)
+
         if (resJson.generations.length > 0){
             return resJson.generations[0].img
         }
 
+    } else{
+        console.log(response)
     }
 
     return null
@@ -95,7 +101,7 @@ routes.post('/', async (req, res) => {
         // wait for image to finish generating, could routine to send email and add to Prisma Schema
         setTimeout(async ()=> {
             const imageUrl = await getImageUrl(id);
-            console.log(imageUrl)
+            console.log("IMAGE URL", imageUrl)
         }, parseInt(waitTime*1000))
 
         const response = {
@@ -115,17 +121,23 @@ routes.post('/', async (req, res) => {
 
         // slight error when image has just been uploaded for generation, where wait time is 0
         // set timeout to 2 seconds since 1s still didnt work
-        if (waitTime == 0) {
-            setTimeout(async ()=> {
-                waitTime = await getImageWaitTime(imageId)
+        function reTryWaitTime (wait_time, backoff) {
+            if (wait_time == 0) {
+                setTimeout(async ()=> {
+                    wait_time = await getImageWaitTime(imageId)
+                    console.log(`Waiting time after ${backoff}`, wait_time)
+                    return reTryWaitTime(waitTime, backoff+1)
+                    // // since repeating same operations twice, moved to function instead
+                    // return postTimeout(wait_time, imageId)
+                }, 1000*backoff)
 
-                // since repeating same operations twice, moved to function instead
-                return postTimeout(waitTime, imageId)
-            }, 2000)
-
-        } else {
-            return postTimeout(waitTime, imageId)
+            } else {
+                return postTimeout(wait_time, imageId)
+            }
         }
+
+        return reTryWaitTime(waitTime, 1)
+
     } else {
         return res.json({"response" : "Something went wrong"})
     }

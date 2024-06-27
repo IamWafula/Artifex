@@ -12,3 +12,72 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+model Image {
+  id String @id
+  imgUrl String?
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  portfolioId Int?
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  annotations Annotation[]
+}
+
+model Annotation {
+  id Int @id @default(autoincrement())
+  text String
+  positionX Int
+  positionY Int
+  image Image @relation(fields: [imageId], references: [id], onDelete: Cascade )
+  imageId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+}
+
+
+model User {
+  id String @id
+  profileImage String @default("https://static-00.iconduck.com/assets.00/user-icon-512x512-r62xmy4p.png")
+  bids Bid[]
+  commissions Commission[]
+  posts Post[]
+  annotations Annotation[]
+  images Image[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  images Image[]
+  bids Bid[]
+}
+
+model Portfolio {
+  id Int @id @default(autoincrement())
+  images Image[]
+  description String
+  bids Bid[]
+}
+
+model Bid{
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+  commission Commission?
+  commissionId Int?
+  portfolioItems Portfolio[]
+}
+
+
+model Commission{
+  id Int @id @default(autoincrement())
+  users User[]
+  bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  bidId Int @unique
+}
