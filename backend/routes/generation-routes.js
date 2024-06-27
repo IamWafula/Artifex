@@ -3,6 +3,29 @@ require('dotenv').config();
 
 const express = require('express');
 const routes = express.Router()
+const app = require("../utils/firebase_config")
+
+const {PrismaClient, Prisma}= require('@prisma/client');
+const prisma = new PrismaClient();
+
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } =  require("firebase/auth")
+
+
+
+/*
+    Function to add new image to prisma database
+*/
+async function addNewImage(image_id, image_url){
+    const newImage = await prisma.image.create({
+        data: {
+            id : image_id,
+            imgUrl: image_url,
+            userId: "TqxEvhREtEPSb0QYvy8hwgJfbgR2"
+        }
+    })
+}
+
+
 /*
     Function to check how long to wait for the image to finish generating from AI Horde
 */
@@ -51,6 +74,10 @@ async function getImageUrl(image_id){
         const resJson = await response.json();
 
         if (resJson.generations.length > 0){
+
+            // add a new image if its done cooking
+            const new_image = await addNewImage(image_id, resJson.generations[0].img)
+
             return resJson.generations[0].img
         }
 
@@ -101,7 +128,6 @@ routes.post('/', async (req, res) => {
         // wait for image to finish generating, could routine to send email and add to Prisma Schema
         setTimeout(async ()=> {
             const imageUrl = await getImageUrl(id);
-            console.log("IMAGE URL", imageUrl)
         }, parseInt(waitTime*1000))
 
         const response = {
