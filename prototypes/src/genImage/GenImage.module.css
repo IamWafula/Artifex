@@ -1,0 +1,18 @@
+.outline {
+    border: 2px solid black;
+    padding: 20px;
+    position: relative;
+}
+
+.main_image {
+    background-position: center;
+    background-size: cover;
+    object-fit: cover;
+}
+
+.click_indicator{
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    position: absolute;
+}
