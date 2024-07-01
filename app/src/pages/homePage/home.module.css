@@ -1,0 +1,22 @@
+#home{
+    height: 100vh;
+    width: 100%;
+    display: grid;
+
+    grid-template-areas:
+    "header header header"
+    ". tabs ."
+    "filters content ."
+    ". content ."
+    ". pagenumbers ."
+    "footer footer footer"
+    ;
+
+    grid-template-columns: 2fr 3fr 1fr;
+    grid-template-rows: 100px 1fr 3fr 3fr 1fr 100px;
+}
+
+#tabs {grid-area: tabs;}
+#content {grid-area: content;}
+#filters {grid-area: filters;}
+#pagenumbers {grid-area: pagenumbers;}
