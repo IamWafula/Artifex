@@ -10,8 +10,6 @@ const prisma = new PrismaClient();
 
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } =  require("firebase/auth")
 
-
-
 /*
     Function to add new image to prisma database
 */

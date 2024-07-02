@@ -16,4 +16,8 @@
     height: auto;
     background-color: white;
     color: black;
+
+    svg {
+        cursor: pointer;
+    }
 }

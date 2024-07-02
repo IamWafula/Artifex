@@ -1,0 +1,8 @@
+.main_image {
+    background-position: center;
+    background-size: cover;
+    object-fit: cover;
+
+    height: 120px;
+    width: 120px;
+}

@@ -2,18 +2,60 @@ import styles from "./header.module.css"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faUser, faX} from '@fortawesome/free-solid-svg-icons'
 import Modal from "../modal/modal"
+import { useState } from "react"
+
+import Cookies from 'universal-cookie';
+
+// firebase utils
+import {newUser, existingUser} from "../../utils/firebase_utils"
 
 export default function Header(){
+
+    const [email, setEmail] = useState("")
+    const [username, setUsername] = useState("Login")
+    const [password, setPassword] = useState("")
+
+
+    //state for modal show
+    const [isOpen, setIsOpen] = useState(false)
+
+    // set up cookies
+    const cookies = new Cookies(null, {path: '/'})
+
+    // handleNewUser
+    const handleNewUser = async () => {
+        if (email && password) {
+            const userData = await newUser(email, password)
+            cookies.set("currentUser", userData)
+            setIsOpen(false)
+        }
+    }
+
+    const handleExistingUser = async () => {
+        if (email && password) {
+            const userData = await existingUser(email, password)
+            cookies.set("currentUser", userData)
+            setIsOpen(false)
+        }
+    }
+
+    useState(() => {
+        setUsername(cookies.get('currentUser').userName)
+    }, [cookies.get('currentUser')])
 
     return (
         <div id={styles.header}>
 
-            <Modal isOpen={true}>
+            <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
                 <div id={styles.login_modal} >
-                    <p>This is a modal!</p>
-                    <input id='email_input' type="text" width='200px' placeholder="enter email" />
-                    <input id='password_input' type='password' placeholder="enter password"/>
-                    <button>login</button>
+                    <p>Login or Signup</p>
+                    <input id='email' type="text" placeholder="enter email" onChange={(e) => {setEmail(e.target.value)}} />
+                    <input id='password' type='password' placeholder="enter password" onChange={(e) => {setPassword(e.target.value)}}/>
+
+                    <div style={{ display: 'flex', gap: '20px'}} >
+                        <button type="submit" onClick={handleExistingUser}>login</button>
+                        <button type="submit" onClick={handleNewUser}>signup</button>
+                    </div>
                 </div>
 
             </Modal>
@@ -27,11 +69,11 @@ export default function Header(){
                 <FontAwesomeIcon icon={faUser}
 
                     onClick={()=> {
-                        alert("Clicked")
+                        setIsOpen(true)
                     }}
 
                 />
-                <p>Username</p>
+                <p>{username}</p>
 
             </div>
 

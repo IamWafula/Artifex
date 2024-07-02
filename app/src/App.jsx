@@ -5,6 +5,7 @@ import './App.css'
 //pages import
 import Home from './pages/homePage/home'
 import NewPost from './pages/newPostPage/newPost'
+// import PendingPosts from './pages/pendingPosts/pendingPosts'
 
 function App() {
   const [count, setCount] = useState(0)

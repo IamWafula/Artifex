@@ -1,11 +1,8 @@
 import Footer from "../../components/footer/footer"
 import Header from "../../components/header/header"
-import ArtImage from "../../components/image/image"
-import styles from "./newPost.module.css"
+import styles from "./pendingPosts.module.css"
 
-export default function NewImage () {
-
-
+export default function PendingPosts () {
 
     return (
         <div id={styles.newpost}>
@@ -24,9 +21,9 @@ export default function NewImage () {
             </div>
 
             <div id={styles.images} >
-                <ArtImage />
-                <ArtImage />
-                <ArtImage />
+                <img className={styles.main_image} src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg" height="120" width="120" />
+                <img className={styles.main_image} src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg" height="120" width="120" />
+                <img className={styles.main_image} src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg" height="120" width="120" />
             </div>
 
             <div  id={styles.post}>
