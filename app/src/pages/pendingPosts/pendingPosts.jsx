@@ -7,6 +7,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Cookies from "universal-cookie";
+import API from "../../utils/api";
 
 export default function PendingPosts () {
 
@@ -14,26 +15,18 @@ export default function PendingPosts () {
     const images = location.state.selectedImages;
     const [imagesAnnotated, setImagesAnnotated] = useState(images)
     const [currentImage, setCurrentImage] = useState(null)
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [category, setCategory] = useState("")
+
+    const [navHome, setNavHome] = useState(false)
 
     const cookies = new Cookies(null, {path : "/"})
 
     async function handleNewPost(){
-        const url = `${import.meta.env.VITE_BACKEND_URL}/posts/`
-
-
-        let options = {
-            method: "POST",
-            headers: {
-                'accept': 'application/json',
-                "Content-Type": "application/json",
-            },
-            body : JSON.stringify(images)
-        }
-
-        const response = await fetch(url, options)
-
+        API.uploadImages(images, title, description, category)
         cookies.set("images", [])
-
+        setNavHome(true)
     }
 
     return (
@@ -45,6 +38,13 @@ export default function PendingPosts () {
                     <Navigate to="/new-post" />
                 )
             }
+
+            {
+                (navHome) && (
+                    <Navigate to="/" />
+                )
+            }
+
 
 
             <div id={styles.image} >
@@ -68,9 +68,21 @@ export default function PendingPosts () {
                 }
             </div>
 
-            <div  id={styles.post}>
+            <div id={styles.details} >
+                <input placeholder="post title" onChange={(e)=> {setTitle(e.target.value)}}/>
+                <input id={styles.desc} placeholder="post description" onChange={(e)=> {setDescription(e.target.value)}}/>
+                <label for="category">Choose a category</label>
+                <select name="category"  onChange={(e)=> {setCategory(e.target.value)}}>
+                    <option value={'digital'}>Digital Art</option>
+                    <option value={'3D'}>3D Models</option>
+                    <option value={'oil'}>Oil on Canvas</option>
+                    <option value={'pixel'}>Pixel Art</option>
+                    <option value={'photography'}>Photography</option>
+                </select>
+
                 <button onClick={handleNewPost}>post</button>
             </div>
+
 
             <Footer />
         </div>

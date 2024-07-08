@@ -17,6 +17,10 @@
 }
 
 #tabs {grid-area: tabs;}
+
+#content::--webkitscrollbar {
+    display: none;
+}
 #content {
     grid-area: content;
     display: flex;
@@ -25,6 +29,9 @@
     overflow-y: scroll;
     overflow-x: visible;
 
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
+
 #filters {grid-area: filters;}
 #pagenumbers {grid-area: pagenumbers;}

@@ -8,12 +8,11 @@
         "form image annotate"
         "form image annotate "
         ". images ."
-        ". post ."
         "footer footer footer"
     ;
 
     grid-template-columns: 1fr 1fr 1fr;;
-    grid-template-rows: 100px 2fr 1fr 1fr 50px 100px;
+    grid-template-rows: 100px 2fr 1fr 1fr 100px;
 }
 
 #form {
@@ -40,7 +39,7 @@
     padding-top: 20px;
 }
 
-#annotate {
+#details {
     grid-area: annotate;
     display: flex;
     flex-direction: column;
@@ -49,6 +48,12 @@
 
     align-items: center;
     justify-content: center;
+
+    #desc{
+        height: 100px;
+        width: 250px;
+        text-wrap: wrap;
+    }
 }
 #images {
     grid-area: images;

@@ -105,7 +105,7 @@ export default function NewImage () {
 
                 {
                     images.map((image) => {
-                        return ( <ArtImage selectedImages={selectedImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
+                        return ( <ArtImage selectedImages={selectedImages} setImages={setImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
                     })
                 }
 

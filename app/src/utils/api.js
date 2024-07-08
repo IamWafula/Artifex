@@ -69,6 +69,25 @@ const API = {
         const resJson = await response.json()
 
         return resJson
+    },
+    uploadImages: async (images, title, desc, category) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/posts/`
+        let options = {
+            method: "POST",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({
+                images: images,
+                title: title,
+                description: desc,
+                category: category
+            })
+        }
+
+        await fetch(url, options)
+
     }
 
 

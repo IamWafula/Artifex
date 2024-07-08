@@ -3,6 +3,7 @@
     width: 100vw;
     background-color: rgba(128, 128, 128, 0.555);
     position: absolute;
+    z-index: 10000;
 
     display: flex;
     justify-content: center;

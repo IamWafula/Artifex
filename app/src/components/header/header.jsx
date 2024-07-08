@@ -8,12 +8,15 @@ import Cookies from 'universal-cookie';
 
 // firebase utils
 import {newUser, existingUser} from "../../utils/firebase_utils"
+import { Navigate } from "react-router-dom"
 
 export default function Header(){
 
     const [email, setEmail] = useState("")
     const [username, setUsername] = useState("Login")
     const [password, setPassword] = useState("")
+
+    const [navHome, setNavHome] = useState(false)
 
 
     //state for modal show
@@ -45,6 +48,11 @@ export default function Header(){
 
     return (
         <div id={styles.header}>
+            {
+                (navHome) && (
+                    <Navigate to="/" />
+                )
+            }
 
             <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
                 <div id={styles.login_modal} >
@@ -61,7 +69,10 @@ export default function Header(){
             </Modal>
 
 
-            <h1>Artifex</h1>
+            <h1
+                onClick={()=>{setNavHome(true)}}
+
+            >Artifex</h1>
 
             <input id={styles.searchterm} type="text" placeholder="enter search term" />
 
