@@ -17,6 +17,14 @@
 }
 
 #tabs {grid-area: tabs;}
-#content {grid-area: content;}
+#content {
+    grid-area: content;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: scroll;
+    overflow-x: visible;
+
+}
 #filters {grid-area: filters;}
 #pagenumbers {grid-area: pagenumbers;}

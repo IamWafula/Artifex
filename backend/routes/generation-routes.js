@@ -157,7 +157,6 @@ routes.get('/:image_id', async (req, res) => {
 
 routes.post('/', async (req, res) => {
     const { prompt, userId } = req.body;
-
     // replace with meaningful error
     if (!prompt) { return res.json({"response" : "no image prompts specified"}) }
 

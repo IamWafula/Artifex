@@ -72,7 +72,8 @@ routes.post("/", async (req, res) =>{
 routes.get("/", async (req, res) => {
     const allPosts = await prisma.post.findMany({
         include: {
-            images: true
+            images: true,
+            user: true
         }
     })
     return res.json(allPosts)

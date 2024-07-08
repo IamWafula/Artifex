@@ -6,6 +6,8 @@ import styles from "./pendingPosts.module.css"
 import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+import Cookies from "universal-cookie";
+
 export default function PendingPosts () {
 
     const location = useLocation();
@@ -13,6 +15,7 @@ export default function PendingPosts () {
     const [imagesAnnotated, setImagesAnnotated] = useState(images)
     const [currentImage, setCurrentImage] = useState(null)
 
+    const cookies = new Cookies(null, {path : "/"})
 
     async function handleNewPost(){
         const url = `${import.meta.env.VITE_BACKEND_URL}/posts/`
@@ -28,6 +31,9 @@ export default function PendingPosts () {
         }
 
         const response = await fetch(url, options)
+
+        cookies.set("images", [])
+
     }
 
     return (

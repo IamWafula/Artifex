@@ -6,23 +6,7 @@ import styles from "./newPost.module.css"
 import Cookies from "universal-cookie"
 import { Navigate } from "react-router-dom"
 
-
-async function getUserImages (userId) {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/images/${userId}`
-
-    let options = {
-        method: "GET",
-        headers: {
-            'accept': 'application/json',
-            "Content-Type": "application/json",
-        }
-    }
-
-    const response = await fetch(url, options)
-    const resJson = await response.json()
-
-    return resJson
-}
+import API from '../../utils/api'
 
 
 export default function NewImage () {
@@ -45,21 +29,8 @@ export default function NewImage () {
 
         console.log(cookies.get("currentUser"))
 
-        const url = `${import.meta.env.VITE_BACKEND_URL}/generate`
+        const response = await API.postNewImage(cookies.get('currentUser').id, description)
 
-        let options = {
-            method: "POST",
-            headers: {
-                'accept': 'application/json',
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                "prompt" : description,
-                "userId" : cookies.get("currentUser").id
-            })
-        }
-
-        const response = await fetch(url, options)
         if (response.status == 200){
             let resJson = await response.json()
             resJson['imagePrompt'] = description
@@ -87,9 +58,11 @@ export default function NewImage () {
     useEffect( () => {
         async function loadImages(){
             if (cookies.get('currentUser')){
-                const allUserImages = await getUserImages(cookies.get('currentUser').id);
+                const allUserImages = await API.getUserImages(cookies.get('currentUser').id);
 
                 const combinedImages = [...allUserImages, ...cookies.get('images')]
+
+                console.log(combinedImages)
 
                 // ensure that combines images are unique
                 cookies.set('images', uniqueImages(combinedImages))
@@ -109,7 +82,7 @@ export default function NewImage () {
             <Header />
 
             {
-                (navPending && selectedImages) && (
+                (navPending && (selectedImages.length == 3)) && (
                     <Navigate to="/pending" state={{selectedImages: selectedImages}} />
                 )
             }
@@ -139,7 +112,7 @@ export default function NewImage () {
             </div>
 
             <div  id={styles.post}>
-                <button >post</button>
+                {/* probably use this for error display */}
             </div>
 
             <Footer />

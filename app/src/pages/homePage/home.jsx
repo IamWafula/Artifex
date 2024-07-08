@@ -1,6 +1,7 @@
 import styles from "./home.module.css"
 import Header from "../../components/header/header"
 import Footer from "../../components/footer/footer"
+import PostCmp from '../../components/post/post'
 
 import API from "../../utils/api";
 
@@ -39,9 +40,10 @@ export default function Home() {
             <div id={styles.content}>
                 {
                     allPosts.map((post) => {
-                        return( <div> {JSON.stringify(post)}</div> )
+                        return( <PostCmp post={post} /> )
                     })
                 }
+
             </div>
 
             <div id={styles.filters}>
