@@ -57,8 +57,9 @@ export default function  ArtImage(props) {
 
     const imageData = props.imageData;
 
-    var waitTimeOut;
-    var countingTimeout;
+    let waitTimeOut;
+    let countingTimeout;
+
 
     // might keep this state to show remaining time
     // TODO: replace with loading later
@@ -80,8 +81,10 @@ export default function  ArtImage(props) {
             setImageUrl(data.imgUrl)
 
             clearTimeout(waitTimeOut)
+            clearInterval(countingTimeout)
         }else if (data.generations.length > 0) {
             clearTimeout(waitTimeOut)
+            clearInterval(countingTimeout)
             setImageUrl(data.generations[0].img)
             setWaitTime(0)
 
@@ -110,6 +113,7 @@ export default function  ArtImage(props) {
             }, parseInt(wait*1000))
         }
     }
+
 
     useEffect(() => {
         const userId= cookies.get('currentUser').id
@@ -143,7 +147,10 @@ export default function  ArtImage(props) {
 
     }, [imageData, props.selectedImages])
 
-
+    // image already generated, just cache left
+    // if (imageUrl && imageData.wait_time) {
+    //     return null
+    // }
 
     return (
         <div className={styles.main_image} style={{
