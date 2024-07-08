@@ -1,0 +1,91 @@
+import Footer from "../../components/footer/footer"
+import GenImage from "../../components/genImage/GenImage";
+import Header from "../../components/header/header"
+import styles from "./pendingPosts.module.css"
+
+import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import Cookies from "universal-cookie";
+import API from "../../utils/api";
+
+export default function PendingPosts () {
+
+    const location = useLocation();
+    const images = location.state.selectedImages;
+    const [imagesAnnotated, setImagesAnnotated] = useState(images)
+    const [currentImage, setCurrentImage] = useState(null)
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [category, setCategory] = useState("")
+
+    const [navHome, setNavHome] = useState(false)
+
+    const cookies = new Cookies(null, {path : "/"})
+
+    async function handleNewPost(){
+        API.uploadImages(images, title, description, category)
+        cookies.set("images", [])
+        setNavHome(true)
+    }
+
+    return (
+        <div id={styles.newpost}>
+            <Header />
+
+            {
+                (!images) && (
+                    <Navigate to="/new-post" />
+                )
+            }
+
+            {
+                (navHome) && (
+                    <Navigate to="/" />
+                )
+            }
+
+
+
+            <div id={styles.image} >
+                {(!currentImage)&&(
+                    <img className={styles.main_image} src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg" height="480" width="480" />
+                )}
+
+                {(currentImage)&&(
+                    <GenImage image={currentImage} setImagesAnnotated={setImagesAnnotated} imagesAnnotated={imagesAnnotated} />
+                )}
+
+            </div>
+
+            <div id={styles.images} >
+
+                {
+                    imagesAnnotated.map((image, index) => {
+
+                        return ( <GenImage image={image} key={index} index={index} prevImage={true} setCurrentImage={setCurrentImage} /> )
+                    })
+                }
+            </div>
+
+            <div id={styles.details} >
+                <input placeholder="post title" onChange={(e)=> {setTitle(e.target.value)}}/>
+                <input id={styles.desc} placeholder="post description" onChange={(e)=> {setDescription(e.target.value)}}/>
+                <label for="category">Choose a category</label>
+                <select name="category"  onChange={(e)=> {setCategory(e.target.value)}}>
+                    <option value={'digital'}>Digital Art</option>
+                    <option value={'3D'}>3D Models</option>
+                    <option value={'oil'}>Oil on Canvas</option>
+                    <option value={'pixel'}>Pixel Art</option>
+                    <option value={'photography'}>Photography</option>
+                </select>
+
+                <button onClick={handleNewPost}>post</button>
+            </div>
+
+
+            <Footer />
+        </div>
+    )
+
+}
