@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const gen_routes = require("./routes/generation-routes")
 const user_routes = require("./routes/user-routes")
+const image_routes = require("./routes/image-routes.js")
+const post_routes = require("./routes/post-routes.js")
 
 const { NotFoundError, ExistingUserError, NoUserFound } = require('./middleware/CustomErrors');
 
@@ -14,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/generate", gen_routes)
 app.use("/user", user_routes)
+app.use("/images", image_routes )
+app.use("/posts",post_routes )
 
 
 app.get("/", (req, res) => {

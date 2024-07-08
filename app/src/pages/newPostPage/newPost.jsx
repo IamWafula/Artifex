@@ -4,13 +4,40 @@ import Header from "../../components/header/header"
 import ArtImage from "../../components/image/image"
 import styles from "./newPost.module.css"
 import Cookies from "universal-cookie"
+import { Navigate } from "react-router-dom"
+
+
+async function getUserImages (userId) {
+    const url = `${import.meta.env.VITE_BACKEND_URL}/images/${userId}`
+
+    let options = {
+        method: "GET",
+        headers: {
+            'accept': 'application/json',
+            "Content-Type": "application/json",
+        }
+    }
+
+    const response = await fetch(url, options)
+    const resJson = await response.json()
+
+    return resJson
+}
+
 
 export default function NewImage () {
     const cookies = new Cookies(null, { path : "/"})
-    const [images, setImages] = useState(cookies.get('images'))
+    if (!cookies.get('images')){
+        cookies.set('images', [])
+    }
+
+    // only add draft images if they exist
+    const [images, setImages] = useState(cookies.get('images')? cookies.get('images') : [])
     const [currentImage, setCurrentImage] = useState({"id" : null})
     const [description, setDescription] = useState("")
 
+    const [selectedImages, setSelectedImages] = useState([])
+    const [navPending, setNavPending] = useState(false)
 
     async function handleNewImage (e) {
 
@@ -34,26 +61,58 @@ export default function NewImage () {
 
         const response = await fetch(url, options)
         if (response.status == 200){
-            const resJson = await response.json()
+            let resJson = await response.json()
+            resJson['imagePrompt'] = description
+            resJson['user'] = cookies.get('currentUser')
 
             // add generated images to current sessions generated images
             cookies.set('images', [...cookies.get('images'), resJson])
-            setImages(cookies.get('images'))
+            setImages([... new Set(cookies.get('images'))])
         }
 
         console.log(images)
     }
 
-    // useEffect(() => {
-    //     const allImages = cookies.get('images')
-    //     console.log(allImages)
-    //     setImages(allImages)
+    function uniqueImages(list_images){
+        const seen = new Set()
+        const unique = list_images.filter(item => {
+            const json = JSON.stringify(item);
+            return seen.has(json) ? false : seen.add(json);
+        });
 
-    // }, [cookies.get('images')])
+        return unique;
+
+    }
+
+    useEffect( () => {
+        async function loadImages(){
+            if (cookies.get('currentUser')){
+                const allUserImages = await getUserImages(cookies.get('currentUser').id);
+
+                const combinedImages = [...allUserImages, ...cookies.get('images')]
+
+                // ensure that combines images are unique
+                cookies.set('images', uniqueImages(combinedImages))
+                setImages(cookies.get('images'))
+            }
+        }
+
+        loadImages()
+    }, [])
+
+    const handleImageChange = (imageData) => {
+        setCurrentImage(imageData)
+    }
 
     return (
         <div id={styles.newpost}>
             <Header />
+
+            {
+                (navPending && selectedImages) && (
+                    <Navigate to="/pending" state={{selectedImages: selectedImages}} />
+                )
+            }
             <div id={styles.form}>
                 <input type="text" placeholder="enter image description"
                     onChange={(e)=> {setDescription(e.target.value)}}
@@ -62,25 +121,25 @@ export default function NewImage () {
             </div>
 
             <div id={styles.image} >
-                <ArtImage height={480} width={480} imageData={currentImage} />
+                <ArtImage selectedImages={selectedImages} setSelectedImages={setSelectedImages} height={480} width={480} imageData={currentImage} />
             </div>
 
             <div id={styles.annotate} >
-                <button > annotate </button>
+                <button onClick={()=> setNavPending(true)}> annotate </button>
             </div>
 
             <div id={styles.images} >
 
                 {
                     images.map((image) => {
-                        return ( <ArtImage setCurrentImage={setCurrentImage} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
+                        return ( <ArtImage selectedImages={selectedImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
                     })
                 }
 
             </div>
 
             <div  id={styles.post}>
-                <button>post</button>
+                <button >post</button>
             </div>
 
             <Footer />

@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
+// image can either be part of portfolio or a generated image
 model Image {
   id String @id
   imgUrl String?
@@ -36,6 +36,8 @@ model Annotation {
   imageId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int?
 }
 
 
@@ -53,10 +55,15 @@ model User {
 
 model Post {
   id Int @id @default(autoincrement())
+  title String @default("")
+  description String @default("")
+  category String @default("")
+  datePublished DateTime @default(now())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
   images Image[]
   bids Bid[]
+  annotations Annotation[]
 }
 
 model Portfolio {
@@ -81,10 +88,6 @@ model Bid{
 
 model Commission{
   id Int @id @default(autoincrement())
-  title String
-  description String
-  category String
-  datePublished DateTime @default(now())
   users User[]
   bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
   bidId Int @unique

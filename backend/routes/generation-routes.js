@@ -17,7 +17,6 @@ const { NotFoundError, ExistingUserError, NoUserFound  } = require('../middlewar
     Function to add new image to prisma database
 */
 async function addNewImage(image_id, image_url, image_prompt, user_id){
-    // add logic to add to firebase
 
     const newImageFirebase = ref(generatedImages, image_id)
     const responseBlob = await fetch(image_url, { method: 'get', mode: 'no-cors', referrerPolicy: 'no-referrer' })
@@ -32,16 +31,34 @@ async function addNewImage(image_id, image_url, image_prompt, user_id){
         const snapshot = await uploadBytes(newImageFirebase, blob, metadata)
         const downloadUrl = await getDownloadURL(newImageFirebase, blob, metadata)
 
-        const newImage = await prisma.image.create({
-            data: {
-                id : image_id,
-                imgUrl: downloadUrl,
-                userId: user_id,
-                prompt: image_prompt
-            }
-        })
+        try{
 
-        return newImage
+            const newImage = await prisma.image.create({
+                data: {
+                    id : image_id,
+                    imgUrl: downloadUrl,
+                    userId: user_id,
+                    prompt: image_prompt
+                }
+            })
+
+            return newImage
+        } catch {
+            // image already exists error
+
+            try {
+                const newImage = await prisma.image.findUnique({
+                    where: {id : image_id}
+                })
+
+                return newImage
+            }
+            catch (error) {
+                // unknown error
+                console.log(error)
+            }
+        }
+
 
     // error handling here
     }
@@ -49,29 +66,15 @@ async function addNewImage(image_id, image_url, image_prompt, user_id){
 
 }
 
-// route used to test Firebase uploads
-routes.post('/upload-firebase/', async (req, res, next) => {
-    return next(new NotFoundError)
+// route used to test Firebase uploads manually if waitTimes fail
+routes.post('/upload-firebase', async (req, res, next) => {
+    const { imageUrl, imageId, imagePrompt, userId } = req.body;
 
-    const { imageUrl, imageId } = req.body;
+    const new_image = await addNewImage(imageId, imageUrl, imagePrompt, userId)
 
-    const newImageFirebase = ref(generatedImages, imageId)
-    const response = await fetch(imageUrl, { method: 'get', mode: 'no-cors', referrerPolicy: 'no-referrer' })
-
-    if (response.status == 200){
-        const blob = await response.blob()
-
-        const metadata = {
-            contentType : 'image/jpeg'
-        }
-
-        const snapshot = await uploadBytes(newImageFirebase, blob, metadata)
-        console.log(snapshot)
-        const downloadUrl = await getDownloadURL(newImageFirebase, blob, metadata)
-        console.log(downloadUrl)
-        res.json({"response" : "success"})
-    } else {
-        res.json({"response" : "image not found"})
+    if (new_image){
+        console.log(new_image)
+        return res.json(new_image)
     }
 
 })
@@ -97,51 +100,10 @@ async function getImageWaitTime(image_id){
     if (response.status == 200){
         const resJson = await response.json();
         return resJson.wait_time
-
     }
 
     return null
 }
-
-async function addImage(image_id, prompt, user_id){
-    const options = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": process.env.HORDE_API_KEY
-        }
-    }
-
-    const url = `https://stablehorde.net/api/v2/generate/status/${image_id}`
-
-    const response = await fetch(url , options);
-    if (response.status == 200){
-
-        const resJson = await response.json();
-
-        if (resJson.generations.length > 0){
-
-            // add a new image if its done cooking
-            try {
-
-                const new_image = await addNewImage(image_id, resJson.generations[0].img, prompt, user_id)
-                console.log("just right")
-                return (new_image)
-
-            } catch (error) {
-                console.log(error)
-            }
-        } else {
-            console.log("called too early")
-
-            setTimeout(()=> {
-                return (addImage(image_id, prompt, user_id))
-            }, 3000)
-        }
-
-    }
-}
-
 
 async function getImageUrl(image_id){
     const options = {
@@ -220,18 +182,12 @@ routes.post('/', async (req, res) => {
 
     const postTimeout = (waitTime, id, image_prompt, userId) => {
 
-        // wait for image to finish generating, could routine to send email and add to Prisma Schema
-        // should definitely add safeguard for when timeout is off by a few seconds
-        setTimeout(async ()=> {
-            const imageUrl = await addImage(id, image_prompt, userId);
-            console.log("newimage url", imageUrl)
-        }, parseInt((waitTime)*1000)) // time in milliseconds
-
         const response = {
             "id": id,
             "wait_time" : waitTime
         }
 
+        // TODO: Delete this since image is already being generated and the wait time here is depreciated
         return res.json(response)
     }
 
@@ -250,8 +206,6 @@ routes.post('/', async (req, res) => {
                     wait_time = await getImageWaitTime(imageId)
                     console.log(`Waiting time after ${backoff}`, wait_time)
                     return reTryWaitTime(wait_time, backoff+1)
-                    // // since repeating same operations twice, moved to function instead
-                    // return postTimeout(wait_time, imageId)
                 }, 1000*backoff)
 
             } else {

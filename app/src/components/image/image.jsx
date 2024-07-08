@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import styles from "./image.module.css"
 
+import Cookies from "universal-cookie"
+
 async function getImageUrl (id) {
     const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`
 
@@ -18,53 +20,160 @@ async function getImageUrl (id) {
     return resJson
 }
 
-export default function  ArtImage(props) {
+/*
+    Function to manually add Image to Firebase storage
+*/
+async function addImageManually (id, image, user, prompt ) {
+    const url = `${import.meta.env.VITE_BACKEND_URL}/generate/upload-firebase`
 
+    let options = {
+        method: "POST",
+        headers: {
+            'accept': 'application/json',
+            "Content-Type": "application/json",
+        },
+        body : JSON.stringify({
+            'imageUrl' : image,
+            'imageId' : id,
+            'imagePrompt' : prompt,
+            'userId' : user
+        })
+    }
+
+    const response = await fetch(url, options)
+    const resJson = await response.json()
+
+    return resJson
+}
+
+
+
+
+export default function  ArtImage(props) {
     const [imageUrl, setImageUrl] = useState("")
     const [allData, setAllData] = useState({})
+    const [generatedData, setGenData] = useState({})
+    const [selected, setSelected] = useState(false)
+
     const imageData = props.imageData;
 
+    var waitTimeOut;
+    var countingTimeout;
+
     // might keep this state to show remaining time
-    const [waitTime, setWaitTime] = useState(0)
+    // TODO: replace with loading later
+    const [waitTime, setWaitTime] = useState(Infinity)
 
-    async function setTimeoutFunction (wait, backoff) {
+    const cookies = new Cookies(null, { path : "/"})
+
+    /*
+        Recursive function to get firebase image url
+        Only called when image is still processing
+    */
+    async function setTimeoutFunction (wait) {
         const data = await getImageUrl(imageData.id)
-        console.log(data)
-
         if (data.error) {return}
 
+        // TODO: if we get generated image (response from ai horde), insert into database manually
         if (data.imgUrl) {
             setAllData(data)
             setImageUrl(data.imgUrl)
-        } else{
-            setTimeout(async () => {
-                setTimeoutFunction(data.wait_time, backoff+1)
-            }, (wait+backoff)*1000)
 
+            clearTimeout(waitTimeOut)
+        }else if (data.generations.length > 0) {
+            clearTimeout(waitTimeOut)
+            setImageUrl(data.generations[0].img)
+            setWaitTime(0)
+
+            // set All data after adding to prisma and firebase
+            const tempData = {
+                'id' : data.generations[0].id,
+                'imgUrl' : data.generations[0].img,
+                'userId' : imageData.userId,
+                'prompt' : imageData.imagePrompt
+            }
+
+            setGenData({...data.generations[0], ...tempData})
+
+        } else{
+            waitTimeOut = setTimeout(async () => {
+                if (data.wait_time){
+                    console.log(data.wait_time, waitTime, data.wait_time > waitTime)
+
+                    // ensure that new wait time is less
+
+                    if(data.wait_time < waitTime){
+                        setWaitTime(data.wait_time)
+                        setTimeoutFunction(data.wait_time)
+                    }
+                }
+            }, parseInt(wait*1000))
         }
     }
 
-    if (props.prevImage && !imageUrl){
-        setTimeoutFunction(0, 1)
-    }
-
     useEffect(() => {
+        const userId= cookies.get('currentUser').id
+        async function getImageData(){
+            const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
+            setAllData(image)
+            setGenData({})
+        }
+
+        if (generatedData.img){
+            console.log(generatedData)
+            getImageData()
+        }
+
+        if (props.prevImage && !imageUrl){
+            setTimeoutFunction(2, 1)
+        }
+
         if (imageData.imgUrl && !props.prevImage) {
             setImageUrl(imageData.imgUrl)
         }
 
-    }, [imageData])
+        if (props.selectedImages){
+            if (props.selectedImages.includes(imageData)){
+                setSelected(true)
+            } else{
+                setSelected(false)
+            }
+
+        }
+
+    }, [imageData, props.selectedImages])
+
+
 
     return (
         <div className={styles.main_image} style={{
                 backgroundImage: imageUrl? `url(${imageUrl})` : 'url("https://i0.wp.com/port2flavors.com/wp-content/uploads/2022/07/placeholder-614.png?fit=1200%2C800&ssl=1")',
                 height: `${props.height? props.height : 120}px`,
                 width: `${props.width? props.width : 120}px`,
-                cursor: props.prevImage ? 'pointer' : 'auto'
+                cursor: props.prevImage ? 'pointer' : 'auto',
+                border: (selected && props.prevImage) ? "10px solid rgb(3, 120, 60)" : null
 
             }}
-            onClick={() => { props.prevImage? props.setCurrentImage(allData) : null }}
+            onClick={() => {
+                props.prevImage? props.setCurrentImage(imageData) : null;
+                (props.prevImage && props.selectedImages && !selected)? props.setSelectedImages((prev) => {
+                    if (prev.length >= 3){
+                        prev.shift()
+                        return [prev, imageData]
+                    } else {
+                        return [...prev, imageData]
+                    }
+
+                }) : null ;
+                (props.prevImage && props.selectedImages && selected)? props.setSelectedImages((prev) => {
+                    return prev.filter(item => item != imageData)
+                }) : null
+            }}
         >
+            {
+              ((waitTime) && (waitTime !== Infinity)) > 0 && (<p>{waitTime}</p>)
+            }
+
         </div>
     )
 }

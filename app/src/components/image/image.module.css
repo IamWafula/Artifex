@@ -3,6 +3,16 @@
     background-size: cover;
     object-fit: cover;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
     height: 120px;
     width: 120px;
+
+    p{
+        font-size: 50px;
+        color: rgb(255, 255, 255);
+    }
 }

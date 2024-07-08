@@ -1,0 +1,33 @@
+.click_indicator{
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    position: absolute;
+    overflow: hidden;
+
+    input {
+        background-color: transparent;
+        border: 0;
+        height: 50px;
+        width: 100%;
+    }
+
+    p {
+        display: none;
+    }
+}
+
+.click_indicator:hover{
+    min-width: 20px;
+    min-height: 20px;
+
+    width: fit-content;
+    height: fit-content;
+
+    max-width: 200px;
+    max-height: 200px;
+
+    p{
+        display: block;
+    }
+}
