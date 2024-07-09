@@ -1,3 +1,4 @@
+import Rating from '../rating/rating'
 import styles from  './post.module.css'
 import Cookies from 'universal-cookie'
 
@@ -21,7 +22,7 @@ export default function PostCmp(props){
                 </div>
 
                 <div className={styles.profile}>
-                    <p>{postDetails.user.userRating} star rating</p>
+                    <Rating rating={postDetails.user.userRating} />
                     <img src={postDetails.user.profileImage} />
                 </div>
 

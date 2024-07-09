@@ -6,6 +6,7 @@
     border: 2px solid black;
     border-radius: 20px;
     width: 80%;
+    min-width: 500px;
 }
 
 .images{
