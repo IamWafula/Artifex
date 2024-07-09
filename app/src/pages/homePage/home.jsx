@@ -40,7 +40,7 @@ export default function Home() {
             <div id={styles.content}>
                 {
                     allPosts.map((post) => {
-                        return( <PostCmp post={post} /> )
+                        return( <PostCmp key={post.id} post={post} /> )
                     })
                 }
 

@@ -18,7 +18,6 @@ export default function Header(){
 
     const [navHome, setNavHome] = useState(false)
 
-
     //state for modal show
     const [isOpen, setIsOpen] = useState(false)
 
@@ -29,7 +28,12 @@ export default function Header(){
     const handleNewUser = async () => {
         if (email && password) {
             const userData = await newUser(email, password)
+
+            // once auth state changes, flush cache
             cookies.set("currentUser", userData)
+            cookies.set('images', [])
+
+            setUsername(userData.userName)
             setIsOpen(false)
         }
     }
@@ -37,14 +41,23 @@ export default function Header(){
     const handleExistingUser = async () => {
         if (email && password) {
             const userData = await existingUser(email, password)
+
+            // once auth state changes, flush cache
             cookies.set("currentUser", userData)
+            cookies.set('images', [])
+
+            setUsername(userData.userName)
             setIsOpen(false)
         }
     }
 
     useState(() => {
         setUsername(cookies.get('currentUser').userName)
-    }, [cookies.get('currentUser')])
+        setEmail("")
+        setPassword("")
+    }, [cookies.get('currentUser'), isOpen])
+
+
 
     return (
         <div id={styles.header}>

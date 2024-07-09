@@ -12,7 +12,6 @@ const API = {
 
         const response = await fetch(url, options)
         const resJson = await response.json()
-        console.log(resJson)
         return resJson
     },
     postNewImage : async (userId, desc) => {

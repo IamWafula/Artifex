@@ -22,7 +22,10 @@ export default function PostCmp(props){
                 </div>
 
                 <div className={styles.profile}>
-                    <Rating rating={postDetails.user.userRating} />
+                    <div className={styles.profile_details}>
+                        <p>{postDetails.user.userName}</p>
+                        <Rating rating={postDetails.user.userRating} />
+                    </div>
                     <img src={postDetails.user.profileImage} />
                 </div>
 
