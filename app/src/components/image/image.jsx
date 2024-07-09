@@ -99,10 +99,10 @@ export default function  ArtImage(props) {
             setGenData({...data.generations[0], ...tempData})
 
         } else{
+
+            // TODO: separate functions for waittime
             waitTimeOut = setTimeout(async () => {
                 if (data.wait_time){
-                    console.log(data.wait_time, waitTime, data.wait_time > waitTime)
-
                     // ensure that new wait time is less
 
                     if(data.wait_time < waitTime){
@@ -111,6 +111,8 @@ export default function  ArtImage(props) {
                     }
                 }
             }, parseInt(wait*1000))
+
+
         }
     }
 

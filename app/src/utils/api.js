@@ -1,6 +1,3 @@
-
-
-
 const API = {
     getAllPosts : async ()=> {
         const url = `${import.meta.env.VITE_BACKEND_URL}/posts/`
