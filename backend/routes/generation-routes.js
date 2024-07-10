@@ -73,7 +73,6 @@ routes.post('/upload-firebase', async (req, res, next) => {
     const new_image = await addNewImage(imageId, imageUrl, imagePrompt, userId)
 
     if (new_image){
-        console.log(new_image)
         return res.json(new_image)
     }
 

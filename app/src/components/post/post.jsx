@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart } from '@fortawesome/free-solid-svg-icons'
 import Rating from '../rating/rating'
 import styles from  './post.module.css'
 import Cookies from 'universal-cookie'
@@ -6,6 +8,8 @@ export default function PostCmp(props){
     // TODO: Date converted to something more legible
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
+
+    if (!postDetails){ return }
 
     return(
         <div className={styles.post}>
@@ -19,6 +23,10 @@ export default function PostCmp(props){
                     <h2>{postDetails.title}</h2>
                     <h4>{postDetails.category}</h4>
                     <p>{postDetails.description}</p>
+                </div>
+
+                <div className={styles.likeBtn}>
+                    <FontAwesomeIcon icon={faHeart} color={"grey"} />
                 </div>
 
                 <div className={styles.profile}>

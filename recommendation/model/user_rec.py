@@ -10,24 +10,34 @@ def get_matrix(users):
 
     # create adjacency matrix where nodes are posts and edges are connected where users any two users like a similar post
     for user in users:
-        for post in user["liked_posts"]:
-            for i in user["liked_posts"]:
-                adj_matrix[post][i] = 1 if post != i else None
+
+        # first node, a users liked post
+        for post in user["likedPosts"]:
+            liked_post = post['post']
+            post_id = liked_post['id']
+
+            # connect to all other nodes, where user has liked both it and other nodes
+            for liked_post in user["likedPosts"]:
+                post_linkend = liked_post['post']
+                linked_idx = post_linkend['id']
+
+                adj_matrix[post_id][linked_idx] = 1 if post_id != linked_idx else None
 
     return adj_matrix
     
 
-def getUserRecommendations(user_id, all_users):
-    adj_matrix = get_matrix(all_users)
-    all_user_liked = [user for user in all_users if user["username"]==user_id][0]["liked_posts"]
-
+def getUserRecommendations(liked_posts, adj_matrix):
     recommended_ids = []
-
+    liked_post_ids = []
     # look through adjacency matrix for similar IDs
-    for post in all_user_liked:
-        for idx, val in enumerate(adj_matrix[post]):
+    for liked in liked_posts:
+        liked_id = liked['post']
+        post_id = liked_id['id']
+
+        liked_post_ids.append(post_id)
+        for idx, val in enumerate(adj_matrix[post_id]):
             recommended_ids.append(idx) if val != None else None
 
-    recommended_ids = list(set([ i for i in recommended_ids if i not in all_user_liked]))
+    recommended_ids = list(set([ i for i in recommended_ids if i not in liked_post_ids]))
 
     return recommended_ids

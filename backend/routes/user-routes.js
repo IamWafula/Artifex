@@ -10,6 +10,18 @@ const { NotFoundError, ExistingUserError, NoUserFound  } = require('../middlewar
 
 const prisma = new PrismaClient();
 
+routes.get("/", async (req, res, next) => {
+    const users = await prisma.user.findMany({
+        include:{
+            likedPosts: {
+                include : { post: true }
+            }
+        }
+    })
+
+    return res.json(users)
+})
+
 routes.get("/:id", async (req, res, next) => {
     try {
         const user = await prisma.user.findUnique({
@@ -29,6 +41,8 @@ routes.get("/:id", async (req, res, next) => {
         next(new NoUserFound)
     }
 })
+
+
 
 routes.post("/", async (req, res, next) => {
     try {

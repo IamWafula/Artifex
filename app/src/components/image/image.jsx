@@ -91,6 +91,7 @@ export default function  ArtImage(props) {
             // set All data after adding to prisma and firebase
             const tempData = {
                 'id' : data.generations[0].id,
+                'genId' : data.generations[0].id,
                 'imgUrl' : data.generations[0].img,
                 'userId' : imageData.userId,
                 'prompt' : imageData.imagePrompt
@@ -123,14 +124,14 @@ export default function  ArtImage(props) {
             const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
 
             props.setImages((prev) => { return prev.filter((item) => {return item.id == generatedData.id})})
-            // cookies.set("images", cookies.get('images').filter((item) => {return item.id == generatedData.id}))
+            cookies.set('images', cookies.get('images').filter((item) => {return item.id == generatedData.id}) )
             setAllData(image)
+
             setGenData({})
         }
 
         // if data in image is from Ai horde (hasn't been uploaded to firebase yet), add manually
         if (generatedData.img){
-            console.log(generatedData)
             getImageData()
         }
 
@@ -154,13 +155,6 @@ export default function  ArtImage(props) {
         }
 
     }, [imageData, props.selectedImages])
-
-    // TODO: Since I store ai horde image temporarily before it uploaded to firebase, I need to differentiate that and fetched data to prevent duplicates
-
-    // image already generated, just cache left
-    // if (imageUrl && imageData.wait_time) {
-    //     return null
-    // }
 
     return (
         <div className={styles.main_image} style={{

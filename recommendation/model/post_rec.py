@@ -6,7 +6,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def get_matrix(all_posts):
     all_categories = ["oil on canvas", "digital art", "3d model", "photography", "pixel art"]
-    
     categories = [item['category'] for item in all_posts]
     descriptions = [item['description'] for item in all_posts]
 
@@ -25,6 +24,7 @@ def get_matrix(all_posts):
 
 
 def getPostRecommendations(user_likes, all_posts):
+    print(all_posts)
     sim_scores = list(enumerate(get_matrix(all_posts)[0]))
     sim_scores = []
     sim_matrix = get_matrix(all_posts)

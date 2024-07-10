@@ -2,7 +2,16 @@ from flask import Flask, json
 import model.user_rec as userRec
 import model.post_rec as postRec
 
+import utils.backend as dUsers
+
 import json
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+from flask_cors import CORS, cross_origin
+
 
 all_posts = [
     {
@@ -72,21 +81,45 @@ users = [
 ]
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+def getRecommendations(user_id, all_users_data, matrix):
+    # get the first data since its always going to be one
+    liked_posts = [user["likedPosts"] for user in all_users_data if user["id"] == user_id][0]
+    user_recs = []
+    liked_recs = []
+    if liked_posts:
+        user_recs = userRec.getUserRecommendations(liked_posts, matrix)
+        liked_recs = postRec.getPostRecommendations(liked_posts, matrix)
+    
+    
+    
+
+    
+    
 
 @app.route("/")
 def hello_world():
-    all_user_liked = [user for user in users if user["username"]=="CreativeMind"][0]["liked_posts"]
-    user_based = userRec.getUserRecommendations("CreativeMind", users)
-    post_based = postRec.getPostRecommendations(all_user_liked, all_posts)
 
-    combined_recs = user_based + post_based
-    combined_recs = list(set(combined_recs))
+    all_users = dUsers.getUsers()
 
-    recommended_posts = [ all_posts[i] for i in combined_recs ]
-    print(recommended_posts)
+    liked_matrix = userRec.get_matrix(all_users)
+
+    for user in all_users:        
+        getRecommendations(user["id"], all_users, liked_matrix)
+
+    # all_user_liked = [user for user in users if user["username"]=="CreativeMind"][0]["liked_posts"]
+    # user_based = userRec.getUserRecommendations("CreativeMind", users)
+    # post_based = postRec.getPostRecommendations(all_user_liked, all_posts)
+
+    # combined_recs = user_based + post_based
+    # combined_recs = list(set(combined_recs))
+
+    # recommended_posts = [ all_posts[i] for i in combined_recs ]
 
     response = app.response_class(
-        response=json.dumps(recommended_posts),
+        response=json.dumps(liked_matrix),
         mimetype='application/json'
     )
     return response

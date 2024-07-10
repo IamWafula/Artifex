@@ -27,8 +27,6 @@ export default function NewImage () {
 
         if (!description) {return }
 
-        console.log(cookies.get("currentUser"))
-
         const response = await API.postNewImage(cookies.get('currentUser').id, description)
 
         if (response.status == 200){
@@ -41,7 +39,6 @@ export default function NewImage () {
             setImages([... new Set(cookies.get('images'))])
         }
 
-        console.log(images)
     }
 
     function uniqueImages(list_images){
@@ -61,8 +58,6 @@ export default function NewImage () {
                 const allUserImages = await API.getUserImages(cookies.get('currentUser').id);
 
                 const combinedImages = [...allUserImages, ...cookies.get('images')]
-
-                console.log(combinedImages)
 
                 // ensure that combines images are unique
                 cookies.set('images', uniqueImages(combinedImages))
@@ -105,7 +100,7 @@ export default function NewImage () {
 
                 {
                     images.map((image) => {
-                        return ( <ArtImage selectedImages={selectedImages} setImages={setImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
+                        return ( <ArtImage key={image.id} selectedImages={selectedImages} setImages={setImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
                     })
                 }
 
