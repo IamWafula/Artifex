@@ -86,8 +86,9 @@ def getPostRecommendations(user_likes, sim_matrix):
         # sort by similarity scores
         sorted_sims = sorted(list(enumerate(sim_matrix[like['post']['id']])), key=lambda x: x[1], reverse=True)
         
+        threshold = 0.9
         # get only the top recommendations with 0.4 threshold         
-        scores = [ sim_scores.append(score) for score in sorted_sims if float(score[1]) > 0.4 ]
+        scores = [ sim_scores.append(score) for score in sorted_sims if float(score[1]) > threshold ]
         sim_scores.append(scores)
     
     recommendations = []

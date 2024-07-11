@@ -29,6 +29,14 @@ export default function PendingPosts () {
         setNavHome(true)
     }
 
+    const categories = {
+        "digital" : "Digital Art",
+        "3D" : "3d Models",
+        "oil" : "Oil on Canvas",
+        "pixel" : "Pixel Art",
+        "photography" : "Photography"
+    }
+
     return (
         <div id={styles.newpost}>
             <Header />
@@ -70,14 +78,15 @@ export default function PendingPosts () {
 
             <div id={styles.details} >
                 <input placeholder="post title" onChange={(e)=> {setTitle(e.target.value)}}/>
-                <input id={styles.desc} placeholder="post description" onChange={(e)=> {setDescription(e.target.value)}}/>
+                <textarea id={styles.desc} placeholder="post description" onChange={(e)=> {setDescription(e.target.value)}}/>
                 <label for="category">Choose a category</label>
                 <select name="category"  onChange={(e)=> {setCategory(e.target.value)}}>
-                    <option value={'digital'}>Digital Art</option>
-                    <option value={'3D'}>3D Models</option>
-                    <option value={'oil'}>Oil on Canvas</option>
-                    <option value={'pixel'}>Pixel Art</option>
-                    <option value={'photography'}>Photography</option>
+
+                    {Object.entries(categories).map((value)=> {
+                        const id = value[0]
+                        const text = value[1]
+                        return (<option value={id}>{text}</option>)
+                    })}
                 </select>
 
                 <button onClick={handleNewPost}>post</button>

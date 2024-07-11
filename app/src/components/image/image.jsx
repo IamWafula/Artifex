@@ -55,7 +55,7 @@ export default function  ArtImage(props) {
     const [generatedData, setGenData] = useState({})
     const [selected, setSelected] = useState(false)
 
-    const imageData = props.imageData;
+    let imageData = props.imageData;
 
     let waitTimeOut;
     let countingTimeout;
@@ -82,23 +82,24 @@ export default function  ArtImage(props) {
 
             clearTimeout(waitTimeOut)
             clearInterval(countingTimeout)
-        }else if (data.generations.length > 0) {
-            clearTimeout(waitTimeOut)
-            clearInterval(countingTimeout)
-            setImageUrl(data.generations[0].img)
-            setWaitTime(0)
+        }else if (data.generations){
+            if (data.generations.length > 0) {
+                clearTimeout(waitTimeOut)
+                clearInterval(countingTimeout)
+                setImageUrl(data.generations[0].img)
+                setWaitTime(0)
 
-            // set All data after adding to prisma and firebase
-            const tempData = {
-                'id' : data.generations[0].id,
-                'genId' : data.generations[0].id,
-                'imgUrl' : data.generations[0].img,
-                'userId' : imageData.userId,
-                'prompt' : imageData.imagePrompt
+                // set All data after adding to prisma and firebase
+                const tempData = {
+                    'id' : data.generations[0].id,
+                    'genId' : data.generations[0].id,
+                    'imgUrl' : data.generations[0].img,
+                    'userId' : imageData.userId,
+                    'prompt' : imageData.imagePrompt
+                }
+
+                setGenData({...data.generations[0], ...tempData})
             }
-
-            setGenData({...data.generations[0], ...tempData})
-
         } else{
 
             // TODO: separate functions for waittime
@@ -123,9 +124,16 @@ export default function  ArtImage(props) {
         async function getImageData(){
             const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
 
-            props.setImages((prev) => { return prev.filter((item) => {return item.id == generatedData.id})})
-            cookies.set('images', cookies.get('images').filter((item) => {return item.id == generatedData.id}) )
+            props.setImages((prev) => {
+                const newSet = prev.filter((item) => {return item.id == generatedData.id})
+
+                cookies.set('images', newSet)
+                return newSet;
+            })
+
+            // TODO: Use this somehow, bug when loading new image
             setAllData(image)
+            imageData = image;
 
             setGenData({})
         }
@@ -140,7 +148,6 @@ export default function  ArtImage(props) {
             setTimeoutFunction(2, 1)
         }
 
-        // if
         if (imageData.imgUrl && !props.prevImage) {
             setImageUrl(imageData.imgUrl)
         }

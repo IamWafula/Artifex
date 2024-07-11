@@ -53,7 +53,10 @@
         height: 100px;
         width: 250px;
         text-wrap: wrap;
+        word-wrap: break-word;
+        word-break: break-all;
     }
+
 }
 #images {
     grid-area: images;

@@ -55,4 +55,5 @@ def run_recommendations():
         response=json.dumps({"response" : "Successfully updated recommendations"}),
         mimetype='application/json'
     )
+
     return response

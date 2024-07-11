@@ -11,7 +11,7 @@ export default function PostCmp(props){
 
     const imageIdx = Math.floor(Math.random()*2)
 
-    if (!postDetails){ return }
+    if (!postDetails || !postDetails.images){ return }
 
     return(
         <div className={styles.post}>

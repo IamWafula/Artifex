@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Footer from "../../components/footer/footer"
 import Header from "../../components/header/header"
 import ArtImage from "../../components/image/image"
@@ -68,9 +68,10 @@ export default function NewImage () {
         loadImages()
     }, [])
 
-    const handleImageChange = (imageData) => {
+    // usecallback here to optimize re-renders
+    const handleImageChange = useCallback((imageData) => {
         setCurrentImage(imageData)
-    }
+    })
 
     return (
         <div id={styles.newpost}>
@@ -107,7 +108,7 @@ export default function NewImage () {
             </div>
 
             <div  id={styles.post}>
-                {/* probably use this for error display */}
+                {/* TODO: use this for error display */}
             </div>
 
             <Footer />

@@ -22,9 +22,7 @@ export default function GenImage (props) {
             >
 
                 {
-                    // notes.map((note, index)=> {
-                    //     return (<Annotation key={index} index={index} note={note} />)
-                    // })
+                    // TODO: Add indicator for number of notes
                 }
 
 
@@ -52,18 +50,20 @@ export default function GenImage (props) {
 
                 onClick={(e) => {
                     const rect = e.target.getBoundingClientRect()
-                    const pointerLocation = [e.clientX - rect.left + 10,  e.clientY - rect.top + 10, ""]
+                    const offset = 10;
+                    const pointerLocation = [e.clientX - rect.left + offset,  e.clientY - rect.top + offset, ""]
 
                     setNotes((prev) => {return ([...prev, pointerLocation])})
 
                     // update notes in parent state
                     props.setImagesAnnotated((prev)=>{
-                        const tempArr = prev
-                        if (tempArr[props.image.idx].notes){
-                            tempArr[props.image.idx].notes = [...tempArr[props.image.idx].notes, pointerLocation]
-                        } else{
-                            tempArr[props.image.idx].notes = [pointerLocation]
-                        }
+                        const tempArr = prev;
+                        const imageIdx = props.image.idx;
+
+                        // add notes to state and to parent state
+                        const notes = tempArr[imageIdx].notes || []
+                        notes.push(pointerLocation)
+                        tempArr[imageIdx].notes = notes;
 
                         return tempArr
                     })
