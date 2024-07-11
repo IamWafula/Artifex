@@ -31,7 +31,8 @@ routes.get("/:id", async (req, res, next) => {
                 bids : true,
                 commissions: true,
                 posts : true,
-                images : true
+                images : true,
+                likedPosts : true
             }
         })
 
@@ -113,8 +114,70 @@ routes.get("/recommendations/:id", async (req, res, next) => {
         res.json(recs)
     }catch (error) {
         console.log(error)
-        res.json({"response" : "somethign went wrong"})
+        res.json({"response" : "something went wrong"})
     }
+})
+
+routes.get("/liked/:id", async (req, res, next) => {
+    try {
+        const id = req.params.id
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id
+            },
+            include : {
+                likedPosts : true
+            }
+        })
+
+        return res.json(user.likedPosts)
+
+    } catch (error) {
+        console.log(error)
+        res.json({"response" : "something went wrong"})
+    }
+})
+
+
+routes.post("/liked", async (req, res, next) => {
+    try {
+        const {userId, postId} = req.body;
+
+        const newLiked = await prisma.postLike.create({
+            data: {
+                postId,
+                userId
+            }
+        })
+        res.json(newLiked)
+    } catch (error) {
+        console.log(error)
+        res.json({"response" : "something went wrong"})
+    }
+})
+
+routes.delete("/liked", async (req, res, next) => {
+    try {
+        const {userId, postId} = req.body;
+        const toDelete = await prisma.postLike.findMany({
+            where: {
+                userId: userId,
+                postId : postId
+            }
+        })
+
+        const newDeleted = await prisma.postLike.delete({
+            where : {
+                id : toDelete[0].id
+            },
+        })
+
+        res.json({"response" : "deleted"})
+    } catch (error) {
+        console.log(error)
+    }
+
 })
 
 

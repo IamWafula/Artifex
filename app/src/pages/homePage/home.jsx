@@ -6,19 +6,24 @@ import PostCmp from '../../components/post/post'
 import API from "../../utils/api";
 
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import Cookies from "universal-cookie";
 
 export default function Home() {
 
+    const cookies = new Cookies(null, {path : '/'})
+    const user = cookies.get("currentUser")
+
+    const location = useLocation()
+
     const [navNewPost, setNaveNewPost] = useState(false)
     const [showAllPosts, setShowAllPosts] = useState(true)
     const [allPosts, setAllPosts] = useState([])
     const [recommendations, setRecommendations] = useState([])
+    const [likedPosts, setLikedPosts] = useState([])
 
-    const cookies = new Cookies(null, {path : '/'})
-    const user = cookies.get("currentUser")
+
 
     useEffect(()=> {
         async function getPosts(){
@@ -31,9 +36,24 @@ export default function Home() {
             }
         }
 
+        async function getLiked(){
+            if (user.id){
+                const liked = await API.getLiked(user.id)
+                setLikedPosts(liked)
+            }
+        }
+
         getPosts();
         getRecs();
-    }, [])
+        getLiked();
+    }, [location.key])
+
+    const checkLiked = (post) =>{
+        const bool = likedPosts.some((likedPost) => {
+            return likedPost.postId == post.id
+        })
+        return bool
+    }
 
     return (
         <div id={styles.home}>
@@ -61,7 +81,8 @@ export default function Home() {
                 {
                     (showAllPosts) &&
                     allPosts.map((post) => {
-                        return( <PostCmp key={post.id} post={post} /> )
+                        const check_liked = checkLiked(post)
+                        return( <PostCmp key={post.id} post={post} liked={checkLiked(post)} /> )
                     })
                 }
 

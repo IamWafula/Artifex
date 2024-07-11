@@ -99,6 +99,56 @@ const API = {
         const resJson = await response.json()
         return resJson;
 
+    },
+    getLiked : async (userId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/liked/${userId}`
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        return resJson;
+    },
+    addLiked : async (userId, postId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/liked`
+        let options = {
+            method: "POST",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({
+                userId: userId,
+                postId: postId
+            })
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        return resJson;
+    },
+    removeLiked : async (userId, postId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/liked`
+        let options = {
+            method: "DELETE",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            },
+            body : JSON.stringify({
+                userId: userId,
+                postId: postId
+            })
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        return resJson;
     }
 
 

@@ -3,11 +3,15 @@ import { faHeart } from '@fortawesome/free-solid-svg-icons'
 import Rating from '../rating/rating'
 import styles from  './post.module.css'
 import Cookies from 'universal-cookie'
+import { useState } from 'react'
+
+import API from '../../utils/api'
 
 export default function PostCmp(props){
     // TODO: Date converted to something more legible
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
+    const [liked, setLiked] = useState(props.liked)
 
     const imageIdx = Math.floor(Math.random()*2)
 
@@ -28,7 +32,13 @@ export default function PostCmp(props){
                 </div>
 
                 <div className={styles.likeBtn}>
-                    <FontAwesomeIcon icon={faHeart} color={"grey"} />
+                    <FontAwesomeIcon onClick={()=> {liked?
+                        (API.removeLiked(cookies.get('currentUser').id, postDetails.id),
+                        setLiked(false))
+                        :
+                        (API.addLiked(cookies.get('currentUser').id, postDetails.id),
+                        setLiked(true))
+                        }}  icon={faHeart} color={liked? "red" : "grey"} />
                 </div>
 
                 <div className={styles.profile}>

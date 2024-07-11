@@ -24,38 +24,36 @@ export default function Header(){
     // set up cookies
     const cookies = new Cookies(null, {path: '/'})
 
+    const changeCache = (userData) => {
+        cookies.set('currentUser', {
+            id: userData.id,
+            profileImage : userData.profileIMage,
+            userName: userData.userName,
+            userRating : userData.userRating
+        })
+
+        cookies.set('userPosts', userData.posts)
+        cookies.set('images', [])
+
+        setUsername(userData.userName)
+    }
+
     // handleNewUser
     const handleNewUser = async () => {
         if (email && password) {
             const userData = await newUser(email, password)
-
             // once auth state changes, change cache
-            cookies.set("currentUser", userData)
-            cookies.set('images', [])
-
-            setUsername(userData.userName)
+            changeCache(userData)
             setIsOpen(false)
         }
     }
-
+    // TODO : Add Page reload to refetch data
     const handleExistingUser = async () => {
         if (email && password) {
             const userData = await existingUser(email, password)
 
             // once auth state changes, change cache
-            console.log(userData)
-
-            cookies.set('currentUser', {
-                id: userData.id,
-                profileImage : userData.profileIMage,
-                userName: userData.userName,
-                userRating : userData.userRating
-            })
-
-            cookies.set('userPosts', userData.posts)
-            cookies.set('images', [])
-
-            setUsername(userData.userName)
+            changeCache(userData)
             setIsOpen(false)
         }
     }
@@ -71,6 +69,7 @@ export default function Header(){
     return (
         <div id={styles.header}>
             {
+
                 (navHome) && (
                     <Navigate to="/" />
                 )
