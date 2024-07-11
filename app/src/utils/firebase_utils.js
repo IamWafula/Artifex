@@ -36,9 +36,8 @@ const newUser = async (email, password) => {
             "id": user.uid,
             "email": user.email
         };
-        console.log(data);
 
-        const url = `${import.meta.env.VITE_DATABASE_URL}/user`;
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user`;
 
 
         const options = {
@@ -73,7 +72,7 @@ const existingUser = async (email, password) => {
     const user = userCredential.user;
     if (user) {
 
-        const url = `${import.meta.env.VITE_DATABASE_URL}/user/${user.uid}`;
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/${user.uid}`;
 
         const options = {
             method: "GET",

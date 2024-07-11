@@ -18,37 +18,58 @@ export default function Header(){
 
     const [navHome, setNavHome] = useState(false)
 
-
     //state for modal show
     const [isOpen, setIsOpen] = useState(false)
 
     // set up cookies
     const cookies = new Cookies(null, {path: '/'})
 
+    const changeCache = (userData) => {
+        cookies.set('currentUser', {
+            id: userData.id,
+            profileImage : userData.profileIMage,
+            userName: userData.userName,
+            userRating : userData.userRating
+        })
+
+        cookies.set('userPosts', userData.posts)
+        cookies.set('images', [])
+
+        setUsername(userData.userName)
+    }
+
     // handleNewUser
     const handleNewUser = async () => {
         if (email && password) {
             const userData = await newUser(email, password)
-            cookies.set("currentUser", userData)
+            // once auth state changes, change cache
+            changeCache(userData)
             setIsOpen(false)
         }
     }
-
+    // TODO : Add Page reload to refetch data
     const handleExistingUser = async () => {
         if (email && password) {
             const userData = await existingUser(email, password)
-            cookies.set("currentUser", userData)
+
+            // once auth state changes, change cache
+            changeCache(userData)
             setIsOpen(false)
         }
     }
 
     useState(() => {
-        setUsername(cookies.get('currentUser').userName)
-    }, [cookies.get('currentUser')])
+        setUsername(cookies.get('currentUser')? cookies.get('currentUser').userName : "Guest")
+        setEmail("")
+        setPassword("")
+    }, [cookies.get('currentUser'), isOpen])
+
+
 
     return (
         <div id={styles.header}>
             {
+
                 (navHome) && (
                     <Navigate to="/" />
                 )

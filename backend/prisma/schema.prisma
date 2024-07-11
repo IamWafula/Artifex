@@ -40,6 +40,16 @@ model Annotation {
   postId Int?
 }
 
+model RecommendedPost {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  // combine userId and post to create Unique constraint
+  @@unique([userId, postId])
+}
 
 model User {
   id String @id
@@ -47,10 +57,20 @@ model User {
   userName String @unique @default("")
   bids Bid[]
   commissions Commission[]
+  likedPosts PostLike[]
   posts Post[]
   annotations Annotation[]
   images Image[]
   userRating Float @default(5)
+  recommendations RecommendedPost[]
+}
+
+model PostLike {
+  id Int @id @default(autoincrement())
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
 model Post {
@@ -59,11 +79,15 @@ model Post {
   description String @default("")
   category String @default("")
   datePublished DateTime @default(now())
+  // TODO: use this in data model
+  //dueDate
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
   images Image[]
   bids Bid[]
   annotations Annotation[]
+  likes PostLike[]
+  recommendedPost RecommendedPost[]
 }
 
 model Portfolio {
