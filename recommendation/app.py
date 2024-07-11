@@ -29,6 +29,10 @@ def getRecommendations(user_id, all_users_data, liked_matrix, post_matrix):
     combined_recs = user_recs + liked_recs
     combined_recs = list(set(combined_recs))
 
+    user_posts = [user["posts"] for user in all_users_data if user["id"] == user_id][0]
+    user_posts = [post['id'] for post in user_posts]
+    combined_recs = [rec for rec in combined_recs if rec not in user_posts]
+
     return combined_recs
 
 @app.route("/")

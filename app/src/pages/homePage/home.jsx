@@ -17,7 +17,7 @@ export default function Home() {
     const [allPosts, setAllPosts] = useState([])
     const [recommendations, setRecommendations] = useState([])
 
-    const cookies = new Cookies(null, {path : "/"})
+    const cookies = new Cookies(null, {path : '/'})
     const user = cookies.get("currentUser")
 
     useEffect(()=> {
@@ -26,7 +26,9 @@ export default function Home() {
         }
 
         async function getRecs(){
-            setRecommendations(await API.getRecommendations(user.id))
+            if (user.id){
+                setRecommendations(await API.getRecommendations(user.id))
+            }
         }
 
         getPosts();

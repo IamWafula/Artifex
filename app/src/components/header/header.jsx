@@ -29,7 +29,7 @@ export default function Header(){
         if (email && password) {
             const userData = await newUser(email, password)
 
-            // once auth state changes, flush cache
+            // once auth state changes, change cache
             cookies.set("currentUser", userData)
             cookies.set('images', [])
 
@@ -42,8 +42,17 @@ export default function Header(){
         if (email && password) {
             const userData = await existingUser(email, password)
 
-            // once auth state changes, flush cache
-            cookies.set("currentUser", userData)
+            // once auth state changes, change cache
+            console.log(userData)
+
+            cookies.set('currentUser', {
+                id: userData.id,
+                profileImage : userData.profileIMage,
+                userName: userData.userName,
+                userRating : userData.userRating
+            })
+
+            cookies.set('userPosts', userData.posts)
             cookies.set('images', [])
 
             setUsername(userData.userName)
@@ -52,7 +61,7 @@ export default function Header(){
     }
 
     useState(() => {
-        setUsername(cookies.get('currentUser').userName)
+        setUsername(cookies.get('currentUser')? cookies.get('currentUser').userName : "Guest")
         setEmail("")
         setPassword("")
     }, [cookies.get('currentUser'), isOpen])

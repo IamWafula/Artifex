@@ -15,7 +15,8 @@ routes.get("/", async (req, res, next) => {
         include:{
             likedPosts: {
                 include : { post: true }
-            }
+            },
+            posts : true
         }
     })
 
