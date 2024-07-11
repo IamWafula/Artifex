@@ -18,8 +18,11 @@ def getPosts():
 
 def submitRecs(user_id, recs):
     url = f"{os.getenv("DATABASE_URL")}/user/recommendations"
-
-    r = requests.get(url)
+    body= {
+        "userId" : user_id,
+        "recommendations" : recs
+    }
+    r = requests.post(url, json=body)
 
     return r.json()
 

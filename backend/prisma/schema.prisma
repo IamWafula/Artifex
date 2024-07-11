@@ -44,7 +44,8 @@ model RecommendedPost {
   id Int @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  posts Post[]
+  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int?
 }
 
 model User {

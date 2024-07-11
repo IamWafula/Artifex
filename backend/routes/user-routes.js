@@ -62,5 +62,31 @@ routes.post("/", async (req, res, next) => {
     }
 })
 
+routes.post("/recommendations", async (req, res, next) => {
+    try {
+        const {userId, recommendations} = req.body;
+        if (recommendations.length == 0){
+            return res.json({})
+        }
+
+        rec_posts = []
+        for (let id in recommendations){
+            rec_posts.push ({
+                "userId" : userId,
+                "postId" : parseInt(recommendations[id])
+            })
+        }
+
+        const newRecs = await prisma.recommendedPost.createMany({
+            data: rec_posts
+        })
+
+
+        res.json(newRecs)
+    }catch (error) {
+        console.log(error)
+    }
+})
+
 
 module.exports = routes;
