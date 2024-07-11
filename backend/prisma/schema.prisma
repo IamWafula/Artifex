@@ -44,8 +44,11 @@ model RecommendedPost {
   id Int @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId Int?
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  // combine userId and post to create Unique constraint
+  @@unique([userId, postId])
 }
 
 model User {

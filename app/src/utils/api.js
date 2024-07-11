@@ -84,6 +84,22 @@ const API = {
 
         await fetch(url, options)
 
+    },
+    getRecommendations: async (userId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/recommendations/${userId}`
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        console.log(resJson)
+        return resJson;
+
     }
 
 

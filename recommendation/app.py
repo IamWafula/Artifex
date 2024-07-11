@@ -32,7 +32,7 @@ def getRecommendations(user_id, all_users_data, liked_matrix, post_matrix):
     return combined_recs
 
 @app.route("/")
-def hello_world():
+def run_recommendations():
 
     all_users = dUsers.getUsers()
     all_posts = dUsers.getPosts()
@@ -45,13 +45,10 @@ def hello_world():
 
     for user in all_users:        
         user_recs = getRecommendations(user["id"], all_users, liked_matrix, post_matrix)
-        dUsers.submitRecs(user["id"], user_recs)
-
-    
-        
+        dUsers.submitRecs(user["id"], user_recs)         
 
     response = app.response_class(
-        response=json.dumps(all_posts),
+        response=json.dumps({"response" : "Successfully updated recommendations"}),
         mimetype='application/json'
     )
     return response

@@ -78,13 +78,41 @@ routes.post("/recommendations", async (req, res, next) => {
         }
 
         const newRecs = await prisma.recommendedPost.createMany({
-            data: rec_posts
+            data: rec_posts,
+            skipDuplicates: true
         })
 
 
         res.json(newRecs)
     }catch (error) {
         console.log(error)
+        res.json({"response" : "somethign went wrong"})
+    }
+})
+
+
+routes.get("/recommendations/:id", async (req, res, next) => {
+    try {
+        const recs = await prisma.recommendedPost.findMany({
+            where: {
+                userId: req.params.id
+            },
+            include : {
+                post: {
+                    include: {
+                        images: true,
+                        user: true,
+                        bids: true,
+                        likes: true
+                    }
+                }
+            }
+        })
+
+        res.json(recs)
+    }catch (error) {
+        console.log(error)
+        res.json({"response" : "somethign went wrong"})
     }
 })
 

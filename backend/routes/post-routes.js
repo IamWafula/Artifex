@@ -16,7 +16,6 @@ const { NotFoundError, ExistingUserError, NoUserFound  } = require('../middlewar
 
 routes.post("/", async (req, res) =>{
     const {images, title, description, category} = req.body;
-    console.log(images, title, description, category)
     try{
         const new_post = await prisma.post.create({
             data : {
