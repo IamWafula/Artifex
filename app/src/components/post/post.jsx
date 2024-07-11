@@ -9,12 +9,14 @@ export default function PostCmp(props){
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
 
+    const imageIdx = Math.floor(Math.random()*2)
+
     if (!postDetails){ return }
 
     return(
         <div className={styles.post}>
             <div className={styles.images}>
-                <img src={postDetails.images[0].imgUrl} />
+                <img src={postDetails.images[imageIdx].imgUrl} />
             </div>
 
             <div className={styles.details_container}>

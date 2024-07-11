@@ -74,6 +74,8 @@ routes.get("/", async (req, res) => {
         include: {
             images: true,
             user: true,
+            bids: true,
+            likes: true
         }
     })
     return res.json(allPosts)

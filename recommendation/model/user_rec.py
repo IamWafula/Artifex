@@ -4,8 +4,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
 # need a way to store similarity matrix and only update when posts are increased instead of redoing
-def get_matrix(users):
-    n = 9
+def get_matrix(users, n):
+    n = n + 1
     adj_matrix = [[ None for i in range(n+1)] for j in range(n+1)]
 
     # create adjacency matrix where nodes are posts and edges are connected where users any two users like a similar post
