@@ -92,7 +92,7 @@ export default function Header(){
 
             <h1
                 onClick={()=>{setNavHome(true)}}
-
+                style={{cursor: 'pointer'}}
             >Artifex</h1>
 
             <input id={styles.searchterm} type="text" placeholder="enter search term" />

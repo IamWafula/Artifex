@@ -6,11 +6,13 @@ import Cookies from 'universal-cookie'
 import { useState } from 'react'
 
 import API from '../../utils/api'
+import { Navigate } from 'react-router-dom'
 
 export default function PostCmp(props){
     // TODO: Date converted to something more legible
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
+    const [navPost, setNavPost] = useState(false)
     const [liked, setLiked] = useState(props.liked)
 
     const imageIdx = Math.floor(Math.random()*2)
@@ -18,7 +20,16 @@ export default function PostCmp(props){
     if (!postDetails || !postDetails.images){ return }
 
     return(
-        <div className={styles.post}>
+        <div className={styles.post}
+
+            onClick={()=>{setNavPost(true)}}
+
+        >
+            {
+                (navPost) && (
+                    <Navigate to={`/post/${postDetails.id}`} />
+                )
+            }
             <div className={styles.images}>
                 <img src={postDetails.images[imageIdx].imgUrl} />
             </div>

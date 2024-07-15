@@ -14,6 +14,21 @@ const API = {
         const resJson = await response.json()
         return resJson
     },
+    getPost : async (postId)=> {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/posts/${postId}`
+
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        return resJson
+    },
     postNewImage : async (userId, desc) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/generate`
         let options = {

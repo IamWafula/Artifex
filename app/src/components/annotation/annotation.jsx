@@ -20,6 +20,7 @@ export default function Annotation(props){
         }
     }
 
+
     return(
         <div className={styles.click_indicator}
             style={{
@@ -31,7 +32,7 @@ export default function Annotation(props){
                 setShowInput(false);
             }}
 
-            onClick={()=> {setShowInput(true)}}
+            onClick={()=> {setShowInput(props.display? false : true)}}
         >
             {
                 (showInput) && (

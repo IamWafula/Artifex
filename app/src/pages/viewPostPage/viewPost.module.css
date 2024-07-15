@@ -1,0 +1,39 @@
+#viewPost {
+    height: 120vh;
+    width: 100%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+
+    grid-template-areas:
+    "header header header"
+    ". images ."
+    ". description ."
+    ". postBtn ."
+    "footer footer footer"
+    ;
+
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: 100px 3fr 1fr 0.5fr 100px;
+}
+
+
+#images {
+    grid-area: images;
+
+    #imagesDisplay {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+}
+
+#description {
+    grid-area: description;
+    height: 100%;
+}
+
+#postBtn {
+    grid-area: postBtn;
+}

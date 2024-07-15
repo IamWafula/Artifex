@@ -2,7 +2,10 @@
     border: 2px solid black;
     padding: 20px;
     position: relative;
+    width: fit-content;
+    height: fit-content;
 }
+
 
 .main_image {
     background-position: center;

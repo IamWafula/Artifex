@@ -5,8 +5,15 @@
     padding: 10px;
     border: 2px solid black;
     border-radius: 20px;
-    width: 80%;
+    width: 60%;
     min-width: 500px;
+
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.post:hover{
+    scale: 1.05;
 }
 
 .images{
