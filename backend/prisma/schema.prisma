@@ -17,8 +17,7 @@ datasource db {
 model Image {
   id String @id
   imgUrl String?
-  portfolio Portfolio? @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  portfolioId Int?
+  portfolio Portfolio[]
   post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -92,9 +91,11 @@ model Post {
 
 model Portfolio {
   id Int @id @default(autoincrement())
-  images Image[]
+  image Image @relation(fields: [imageId], references: [id], onDelete: Cascade )
+  imageId String
   description String
-  bids Bid[]
+  bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  bidId Int
 }
 
 model Bid{

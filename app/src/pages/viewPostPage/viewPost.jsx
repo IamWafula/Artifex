@@ -17,8 +17,9 @@ export default function ViewPost(){
     const postId = useParams().id;
 
     const [postData, setPostData] = useState({})
-
     const [imageIdxs, setImageIdxs] = useState([0, 1, 2])
+
+    const [navBid, setNavBid] = useState(false)
 
     useEffect(() => {
         async function getData(id){
@@ -29,10 +30,14 @@ export default function ViewPost(){
         getData(postId)
     }, [])
 
-    console.log(postData)
 
     return (
         <div id={styles.viewPost}>
+
+            {(navBid) && (
+                <Navigate to={`/bid/${postId}`} />
+            )}
+
             <Header />
 
             <div id={styles.images}>
@@ -57,7 +62,11 @@ export default function ViewPost(){
             </div>
 
             <div id={styles.postBtn}>
-                <button> Add Bid </button>
+                <button
+                    onClick={()=> {
+                        setNavBid(true)
+                    }}
+                > Add Bid </button>
             </div>
 
             <Footer />

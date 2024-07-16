@@ -7,6 +7,7 @@ import Home from './pages/homePage/home'
 import NewPost from './pages/newPostPage/newPost'
 import PendingPosts from './pages/pendingPosts/pendingPosts'
 import ViewPost from './pages/viewPostPage/viewPost'
+import AddBid from './pages/addBidPage/addBid.jsx'
 // import PendingPosts from './pages/pendingPosts/pendingPosts'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/new-post" element={<NewPost />} />
         <Route path="/pending" element={<PendingPosts />} />
         <Route path="/post/:id" element={<ViewPost/>} />
+        <Route path="/bid/:id" element={<AddBid/>} />
       </Routes>
 
     </Router>
