@@ -57,7 +57,7 @@ export default function AddBid (props){
 
     useEffect(() => {
         setCurrentImages(imagePortfolios[currentIndex])
-    }, [currentIndex])
+    }, [currentIndex, imagePortfolios[currentIndex]])
 
 
     const handleUpload = (event) => {
@@ -71,19 +71,13 @@ export default function AddBid (props){
             reader.onload = (e) => {
                 result = e.target.result
                 imageData = [result, file.name]
-                console.log("Called")
-
 
                 setImagePortfolios((prev) => {
-                    // this is called twice : BLOCKER
-                    console.log("Called 2")
-                    const temp = prev;
+                    const temp = [...prev];
                     temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name]])]
-                    setCurrentImages(temp[currentIndex])
                     return temp;
                 })
 
-                // setCurrentImages(imagePortfolios[currentIndex])
             }
             reader.readAsDataURL(file)
 
