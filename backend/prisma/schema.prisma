@@ -91,9 +91,8 @@ model Post {
 
 model Portfolio {
   id Int @id @default(autoincrement())
-  image Image @relation(fields: [imageId], references: [id], onDelete: Cascade )
-  imageId String
-  description String
+  portfolioNumber Int
+  image Image[]
   bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
   bidId Int
 }

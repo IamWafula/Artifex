@@ -34,13 +34,15 @@ export default function AddBid (props){
     // put in separate state to force re-renders
     const [currentImages, setCurrentImages]  = useState([])
 
-    //TODO: confusing naming, should switch
-    const [currentDesc, setCurrentDesc] = useState(["", "", ""])
     const [description, setDescription] = useState("")
 
     const fileInputRef = useRef(null);
     const descRef = useRef(null);
+
     const reader = new FileReader()
+
+    const cookies = new Cookies(null, {path: '/'})
+    const userId = cookies.get('currentUser').id
 
 
     const [finish, setFinish] = useState(false)
@@ -85,36 +87,32 @@ export default function AddBid (props){
     }
 
     const changeDescriptionNext = () => {
-        setCurrentDesc((prev) => {
-            const temp = prev;
-            temp[currentIndex] = description;
-            return temp;
-        })
-
         if (currentIndex < 2) {
             setCurrentIndex((prev) => {
-                setDescription(currentDesc[prev+1])
-                descRef.current.value = currentDesc[prev+1]
                 return prev+1}
             )
         }
     }
 
-    const changeDescriptionPrev = () => {
-        setCurrentDesc((prev) => {
-            const temp = prev;
-            temp[currentIndex] = description;
-            return temp;
-        })
+    const handlePost = async () => {
+        if (description){
+            const allImageData = []
 
-        setCurrentIndex((prev) => {
-            setDescription(currentDesc[prev-1])
-            descRef.current.value = currentDesc[prev-1] ? currentDesc[prev-1] : ""
-            return prev-1
-        })
+            for (let i in imagePortfolios){
+                const imageData = []
 
+                for (let image in imagePortfolios[i]){
+                    imageData.push({
+                        "name" : imagePortfolios[i][image][1],
+                        "blob" : imagePortfolios[i][image][0]
+                    })
+                }
+                allImageData.push(imageData)
+            }
+
+            API.addBid(allImageData, description, postId, userId)
+        }
     }
-
 
 
     return (
@@ -192,7 +190,11 @@ export default function AddBid (props){
 
                 <button
                     onClick={() => {
-                        changeDescriptionPrev()
+                        setCurrentIndex((prev) => {
+                            if (prev <= 3){
+                                return prev-1
+                            }
+                        })
                     }}
 
                     style={{ display : (currentIndex > 0)? "block" : "none" }}
@@ -209,10 +211,10 @@ export default function AddBid (props){
                 <div id={styles.imagesDisplay}>
                     {imagePortfolios.map((value, index) => (
                         <>
+                            <p>{`image ${index+1} portfolio images`}</p>
                             {value.map((portfolio) => (
                                 <PortImage key={index} src={portfolio[0]} name={portfolio[1]}/>
                             ))}
-                            <p>{currentDesc[index]}</p>
                         </>
                         )
                     )}
@@ -221,13 +223,14 @@ export default function AddBid (props){
                 <textarea name="" id="" cols="10" rows="3"
                     onChange={(e)=> {setDescription(e.target.value)}}
                     placeholder= {"Enter bid description"}
+                    defaultValue={description}
                 ></textarea>
 
                 <button
                     onClick={() => {
                         setFinish(false)
                         setCurrentIndex(3)
-                        changeDescriptionPrev()
+                        setCurrentIndex((prev) => { return prev-1})
                     }}
                 >Back</button>
                 </div>
@@ -235,6 +238,7 @@ export default function AddBid (props){
             <div id={styles.postBtn}>
                     <button
                         style={{ display: finish? "block" : "none" }}
+                        onClick={handlePost}
                     >Post</button>
 
             </div>

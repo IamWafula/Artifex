@@ -15,7 +15,9 @@ import { faPlus, faCircle, faP } from "@fortawesome/free-solid-svg-icons";
 
 const PortImage = (details) => {
     return (
-        <div id={styles.portImage} style={{ backgroundImage : `url(${details.src})` }}>
+        <div className={styles.portImage} >
+            <div className={styles.imagePreview}  style={{ backgroundImage : `url(${details.src})` }}></div>
+            <p>{details.name}</p>
         </div>
     )
 }
@@ -31,9 +33,17 @@ export default function AddBid (props){
     const [currentIndex, setCurrentIndex] = useState(0)
     // put in separate state to force re-renders
     const [currentImages, setCurrentImages]  = useState([])
-    const [currentDesc, setCurrentDesc] = useState([])
+
+    //TODO: confusing naming, should switch
+    const [currentDesc, setCurrentDesc] = useState(["", "", ""])
+    const [description, setDescription] = useState("")
 
     const fileInputRef = useRef(null);
+    const descRef = useRef(null);
+    const reader = new FileReader()
+
+
+    const [finish, setFinish] = useState(false)
 
     // TODO: this is a re-fetch, find ways to optimize
     useEffect(() => {
@@ -46,9 +56,66 @@ export default function AddBid (props){
     }, [])
 
     useEffect(() => {
-        setCurrentImages([])
         setCurrentImages(imagePortfolios[currentIndex])
-    }, [currentIndex])
+    }, [currentIndex, imagePortfolios[currentIndex]])
+
+
+    const handleUpload = (event) => {
+        // routine to preview portfolio image before adding it to big
+        // called using useRef and div click
+        const file = event.target.files[0]
+        let imageData = []
+
+        var result = ""
+        if (file) {
+            reader.onload = (e) => {
+                result = e.target.result
+                imageData = [result, file.name]
+
+                setImagePortfolios((prev) => {
+                    const temp = [...prev];
+                    temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name]])]
+                    return temp;
+                })
+
+            }
+            reader.readAsDataURL(file)
+
+        }
+    }
+
+    const changeDescriptionNext = () => {
+        setCurrentDesc((prev) => {
+            const temp = prev;
+            temp[currentIndex] = description;
+            return temp;
+        })
+
+        if (currentIndex < 2) {
+            setCurrentIndex((prev) => {
+                setDescription(currentDesc[prev+1])
+                descRef.current.value = currentDesc[prev+1]
+                return prev+1}
+            )
+        }
+    }
+
+    const changeDescriptionPrev = () => {
+        setCurrentDesc((prev) => {
+            const temp = prev;
+            temp[currentIndex] = description;
+            return temp;
+        })
+
+        setCurrentIndex((prev) => {
+            setDescription(currentDesc[prev-1])
+            descRef.current.value = currentDesc[prev-1] ? currentDesc[prev-1] : ""
+            return prev-1
+        })
+
+    }
+
+
 
     return (
         <div id={styles.addBid}>
@@ -87,79 +154,88 @@ export default function AddBid (props){
 
             </div>
 
-            <div id={styles.bid}>
+            <div id={styles.bid}
+                style={{ display: finish? "none" : "flex" }}
+            >
+                <h1>Portfolio Images </h1>
 
-                <div id={styles.imagePortfolios}>
+                <div id={styles.addImages} onClick={() =>{fileInputRef.current?.click()}} >
+                    <input type="file" ref={fileInputRef} style={{ display: "none" }}
+                        onChange={handleUpload}
+                    />
+                    <FontAwesomeIcon icon={faPlus} />
+                </div>
 
-                    <div id={styles.portFDetails}>
-
-                        <div id={styles.newPortF}>
-                            <p>new Portfolio</p>
-
-                            <div id={styles.addImages}
-                                onClick={() =>{fileInputRef.current?.click()}}
-                            >
-                                <input type="file" ref={fileInputRef} style={{ display: "none" }}
-
-                                    onChange={(event) => {
-                                        // routine to preview portfolio image before adding it to big
-                                        // called using useRef and div click
-                                        const file = event.target.files[0]
-                                        var result = ""
-                                        if (file) {
-                                            const reader = new FileReader()
-                                            reader.onload = (e) => {
-                                                result = e.target.result
-
-                                                setImagePortfolios((prev) => {
-                                                    const temp = prev;
-                                                    temp[currentIndex] = [...temp[currentIndex], result]
-                                                    return temp;
-                                                })
-
-                                                setCurrentImages([...currentImages, result])
-                                            }
-                                            reader.readAsDataURL(file)
-
-                                            console.log(result)
-                                        }
-
-
-
-                                    }}
-                                />
-
-                                <FontAwesomeIcon icon={faPlus} />
-                            </div>
-
-                            <div id={styles.images}>
-
-                            </div>
-
-                        </div>
-
-                        <textarea name="" id="" cols="30" rows="3" placeholder="Enter portfolio details"></textarea>
-
-                        <button>Add Portfolio</button>
-                    </div>
-
-
-                    <div id={styles.previousImages}>
-                        <p>previous Images</p>
-                    </div>
-
-                    <div id={styles.selectedPortF}>
-                        <p>selectedPortfolios</p>
-                    </div>
-
-                    <textarea placeholder="enter bid details" onChange={(e)=>{}} />
+                <div id={styles.imagesDisplay}>
+                    {
+                        currentImages.map((value, index) => {
+                            return(
+                                <PortImage key={index} src={value[0]} name={value[1]}/>
+                            )
+                        })
+                    }
 
                 </div>
 
+                <textarea name="" id="" cols="10" rows="3"
+                    ref={descRef}
+                    onChange={(e)=> {setDescription(e.target.value)}}
+                    placeholder= {"Enter images description"}
+                ></textarea>
+
+                <button
+                    onClick={() => {
+                        (currentIndex == 2)? setFinish(true):null;
+                        changeDescriptionNext()
+                    }}
+                >{currentIndex == 2? "Finish" : "Next"}</button>
+
+                <button
+                    onClick={() => {
+                        changeDescriptionPrev()
+                    }}
+
+                    style={{ display : (currentIndex > 0)? "block" : "none" }}
+                >Back</button>
 
             </div>
 
+            <div
+                id={styles.bid}
+                style={{ display: finish? "flex" : "none" }}
+            >
+                <h1>Portfolio Items</h1>
+
+                <div id={styles.imagesDisplay}>
+                    {imagePortfolios.map((value, index) => (
+                        <>
+                            {value.map((portfolio) => (
+                                <PortImage key={index} src={portfolio[0]} name={portfolio[1]}/>
+                            ))}
+                            <p>{currentDesc[index]}</p>
+                        </>
+                        )
+                    )}
+                </div>
+
+                <textarea name="" id="" cols="10" rows="3"
+                    onChange={(e)=> {setDescription(e.target.value)}}
+                    placeholder= {"Enter bid description"}
+                ></textarea>
+
+                <button
+                    onClick={() => {
+                        setFinish(false)
+                        setCurrentIndex(3)
+                        changeDescriptionPrev()
+                    }}
+                >Back</button>
+                </div>
+
             <div id={styles.postBtn}>
+                    <button
+                        style={{ display: finish? "block" : "none" }}
+                    >Post</button>
 
             </div>
 
