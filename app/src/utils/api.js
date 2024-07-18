@@ -205,9 +205,23 @@ const API = {
         const resJson = await response.json()
 
         return resJson;
+    },
+    addCommission : async (bid) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/bids/commission`
+        let options = {
+            method: "POST",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(bid)
+        }
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+
+        return resJson;
+
     }
-
-
 
 }
 

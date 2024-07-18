@@ -40,12 +40,12 @@ export default function AddBid (props){
     const descRef = useRef(null);
 
     const reader = new FileReader()
-
     const cookies = new Cookies(null, {path: '/'})
     const userId = cookies.get('currentUser').id
 
 
     const [finish, setFinish] = useState(false)
+    const [navHome, setNavHome] = useState(false)
 
     // TODO: this is a re-fetch, find ways to optimize
     useEffect(() => {
@@ -110,14 +110,22 @@ export default function AddBid (props){
                 allImageData.push(imageData)
             }
 
-            API.addBid(allImageData, description, postId, userId)
+            await API.addBid(allImageData, description, postId, userId)
         }
+
+        setNavHome(true)
+
     }
 
 
     return (
         <div id={styles.addBid}>
             <Header />
+
+            {
+                (navHome) &&
+                (<Navigate to="/" />)
+            }
 
             <div id={styles.post}>
 

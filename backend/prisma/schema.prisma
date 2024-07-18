@@ -14,6 +14,7 @@ datasource db {
 }
 
 // image can either be part of portfolio or a generated image
+// TODO: Add date to image name incase of duplicates
 model Image {
   id String @id
   imgUrl String?
@@ -105,7 +106,7 @@ model Bid{
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
   commission Commission?
-  commissionId Int?
+  commissionId Int? @unique
   portfolioItems Portfolio[]
 }
 

@@ -13,6 +13,59 @@ const { uploadBytes, ref, getDownloadURL } = require('firebase/storage');
 
 const { NotFoundError, ExistingUserError, NoUserFound  } = require('../middleware/CustomErrors');
 
+routes.post("/commission", async (req, res, next) => {
+    const bid = req.body;
+
+
+    let newCommission = await prisma.commission.findUnique({
+        where : {
+            bidId : parseInt(bid.id)
+        }
+    })
+
+    if (!newCommission){
+        newCommission = await prisma.commission.create({
+            data :
+                {
+                    bidId : bid.id
+                }
+
+        })
+    }
+
+
+
+    // connect bidder to commission
+    await prisma.user.update({
+        where: {
+            id: bid.userId
+        },
+        data : {
+            commissions : {
+                connect : {
+                    id : parseInt(newCommission.id)
+                }
+            }
+        }
+    })
+
+    // connect poster to commission
+    await prisma.user.update({
+        where: {
+            id:  bid.posterId
+        },
+        data : {
+            commissions : {
+                connect : {
+                    id : parseInt(newCommission.id)
+                }
+            }
+        }
+    })
+
+
+    res.json({"response" : "success"})
+})
 
 routes.post( "/", async (req, res, next) => {
     const {fullBid, description, postId, userId} = req.body;

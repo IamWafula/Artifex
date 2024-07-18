@@ -84,7 +84,15 @@ routes.get("/:id" , async (req, res) => {
                     }
                 },
                 user: true,
-                bids: true,
+                bids: {
+                    include : {
+                        portfolioItems : {
+                            include : {
+                                image : true
+                            }
+                        }
+                    }
+                },
                 likes: true
             }
         })

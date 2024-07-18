@@ -45,6 +45,7 @@ export default function Header(){
             // once auth state changes, change cache
             changeCache(userData)
             setIsOpen(false)
+            setNavHome(true)
         }
     }
     // TODO : Add Page reload to refetch data
@@ -55,6 +56,7 @@ export default function Header(){
             // once auth state changes, change cache
             changeCache(userData)
             setIsOpen(false)
+            setNavHome(true)
         }
     }
 
