@@ -66,6 +66,8 @@ async function addNewImage(image_id, image_url, image_prompt, user_id){
 
 }
 
+
+
 // route used to test Firebase uploads manually if waitTimes fail
 routes.post('/upload-firebase', async (req, res, next) => {
     const { imageUrl, imageId, imagePrompt, userId } = req.body;

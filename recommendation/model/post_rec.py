@@ -14,7 +14,7 @@ def get_matrix(posts, n):
     all_categories = [""]*n
 
     all_descriptions = [""]*n
-    # insert date due
+    # TODO: insert date due
     all_titles = [""]*n
     all_image_prompts = [""]*n
     all_user_rating = [0]*n

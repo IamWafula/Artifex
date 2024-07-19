@@ -14,11 +14,11 @@ datasource db {
 }
 
 // image can either be part of portfolio or a generated image
+// TODO: Add date to image name incase of duplicates
 model Image {
   id String @id
   imgUrl String?
-  portfolio Portfolio? @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  portfolioId Int?
+  portfolio Portfolio[]
   post Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -73,6 +73,7 @@ model PostLike {
   userId String
 }
 
+// TODO: Link to Bid to disable bidding
 model Post {
   id Int @id @default(autoincrement())
   title String @default("")
@@ -92,9 +93,10 @@ model Post {
 
 model Portfolio {
   id Int @id @default(autoincrement())
-  images Image[]
-  description String
-  bids Bid[]
+  portfolioNumber Int
+  image Image[]
+  bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  bidId Int
 }
 
 model Bid{
@@ -105,7 +107,7 @@ model Bid{
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
   commission Commission?
-  commissionId Int?
+  commissionId Int? @unique
   portfolioItems Portfolio[]
 }
 

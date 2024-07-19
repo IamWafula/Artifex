@@ -47,15 +47,16 @@ async function addImageManually (id, image, user, prompt ) {
 }
 
 
-
-
 export default function  ArtImage(props) {
-    const [imageUrl, setImageUrl] = useState("")
     const [allData, setAllData] = useState({})
     const [generatedData, setGenData] = useState({})
     const [selected, setSelected] = useState(false)
 
-    let imageData = props.imageData;
+    let imageData = allData? props.imageData : allData;
+    const [imageUrl, setImageUrl] = useState(imageData.imgUrl)
+
+    const [finalWait, setFinalWait] = useState(false)
+
 
     let waitTimeOut;
     let countingTimeout;
@@ -75,6 +76,21 @@ export default function  ArtImage(props) {
         const data = await getImageUrl(imageData.id)
         if (data.error) {return}
 
+        if (data.wait_time >= 0 && data.wait_time != Infinity){
+            setWaitTime(data.wait_time)
+            let counter = data.wait_time;
+            clearInterval(countingTimeout);
+            countingTimeout = setInterval(()=> {
+                counter -= 1
+                if (counter > 0){
+                    setWaitTime(counter)
+                } else {
+                    clearInterval(countingTimeout)
+                    setTimeoutFunction(Infinity)
+                }
+            }, 1000)
+        }
+
         // TODO: if we get generated image (response from ai horde), insert into database manually
         if (data.imgUrl) {
             setAllData(data)
@@ -92,7 +108,7 @@ export default function  ArtImage(props) {
                 // set All data after adding to prisma and firebase
                 const tempData = {
                     'id' : data.generations[0].id,
-                    'genId' : data.generations[0].id,
+                    'genId': generatedData.genId? generatedData.genId : imageData.id,
                     'imgUrl' : data.generations[0].img,
                     'userId' : imageData.userId,
                     'prompt' : imageData.imagePrompt
@@ -100,52 +116,36 @@ export default function  ArtImage(props) {
 
                 setGenData({...data.generations[0], ...tempData})
             }
-        } else{
-
-            // TODO: separate functions for waittime
-            waitTimeOut = setTimeout(async () => {
-                if (data.wait_time){
-                    // ensure that new wait time is less
-
-                    if(data.wait_time < waitTime){
-                        setWaitTime(data.wait_time)
-                        setTimeoutFunction(data.wait_time)
-                    }
-                }
-            }, parseInt(wait*1000))
-
-
         }
     }
 
 
     useEffect(() => {
         const userId= cookies.get('currentUser').id
+        if (!generatedData.genId){
+            setGenData({"genId" : imageData.id})
+        }
+
         async function getImageData(){
             const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
 
-            props.setImages((prev) => {
-                const newSet = prev.filter((item) => {return item.id == generatedData.id})
-
-                cookies.set('images', newSet)
-                return newSet;
-            })
+            props.removeImage(generatedData.genId, image)
 
             // TODO: Use this somehow, bug when loading new image
             setAllData(image)
             imageData = image;
-
-            setGenData({})
         }
 
         // if data in image is from Ai horde (hasn't been uploaded to firebase yet), add manually
         if (generatedData.img){
-            getImageData()
+            if (generatedData.genId){
+                getImageData()
+            }
         }
 
         // if url is not ready, wait for image
         if (props.prevImage && !imageUrl){
-            setTimeoutFunction(2, 1)
+            setTimeoutFunction(2)
         }
 
         if (imageData.imgUrl && !props.prevImage) {
@@ -158,10 +158,12 @@ export default function  ArtImage(props) {
             } else{
                 setSelected(false)
             }
-
         }
 
-    }, [imageData, props.selectedImages])
+
+
+    }, [imageData, finalWait, props.selectedImages])
+
 
     return (
         <div className={styles.main_image} style={{
@@ -174,7 +176,7 @@ export default function  ArtImage(props) {
             }}
             onClick={() => {
                 props.prevImage? props.setCurrentImage(imageData) : null;
-                (props.prevImage && props.selectedImages && !selected)? props.setSelectedImages((prev) => {
+                (props.prevImage && props.selectedImages && !selected && !imageData.wait_time)? props.setSelectedImages((prev) => {
                     if (prev.length >= 3){
                         prev.shift()
                         return [prev, imageData]
@@ -183,13 +185,13 @@ export default function  ArtImage(props) {
                     }
 
                 }) : null ;
-                (props.prevImage && props.selectedImages && selected)? props.setSelectedImages((prev) => {
+                (props.prevImage && props.selectedImages && selected && !imageData.wait_time)? props.setSelectedImages((prev) => {
                     return prev.filter(item => item != imageData)
                 }) : null
             }}
         >
             {
-              ((waitTime) && (waitTime !== Infinity)) > 0 && (<p>{waitTime}</p>)
+              ((waitTime) && (!imageData.imgUrl) && (waitTime != Infinity)) > 0 && (<p>{waitTime}</p>)
             }
 
         </div>

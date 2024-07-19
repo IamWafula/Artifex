@@ -1,0 +1,95 @@
+#addBid {
+    height: 120vh;
+    width: 100%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+
+    grid-template-areas:
+    "header header header"
+    "post bid bid"
+    "post bid bid"
+    ". postBtn ."
+    "footer footer footer"
+    ;
+
+    grid-template-columns: 3fr 3fr 1fr;
+    grid-template-rows: 100px 3fr 1fr 0.5fr 100px;
+}
+
+#post{
+    grid-area: post;
+
+
+    #images {
+        display: flex;
+        align-items: center;
+
+        #imageBtns {
+            display: flex;
+            flex-direction: column;
+            margin-left: 10px;
+            gap: 5px;
+            color: rgb(216, 216, 216);
+        }
+    }
+
+    max-width: 480px;
+}
+
+#bid {
+    grid-area: bid;
+    height: 80%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    textarea{
+        width: 80%;
+        padding-top: 20px;
+    }
+}
+
+#addImages{
+    width: 100px;
+    background-color: rgb(98, 111, 229);
+    cursor: pointer;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+#imagesDisplay {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: scroll;
+}
+
+#imagesDisplay::-webkit-scrollbar{
+    display: none;
+}
+.portImage{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    .imagePreview {
+        height: 50px;
+        width: 50px;
+        background-size: cover;
+        background-position: center;
+        object-fit: contain;
+    }
+}
+
+textarea{
+    margin-top: auto;
+}
+
+#postBtn {grid-area: postBtn;}

@@ -68,6 +68,41 @@ routes.post("/", async (req, res) =>{
     res.json({"response" : "success"})
 })
 
+routes.get("/:id" , async (req, res) => {
+    try
+    {
+        const id = parseInt(req.params.id);
+
+        const post = await prisma.post.findUnique({
+            where : {
+                id: id
+            },
+            include: {
+                images: {
+                    include : {
+                        annotations : true
+                    }
+                },
+                user: true,
+                bids: {
+                    include : {
+                        portfolioItems : {
+                            include : {
+                                image : true
+                            }
+                        }
+                    }
+                },
+                likes: true
+            }
+        })
+        return res.json(post)
+    } catch (error) {
+        console.log(error)
+        res.json({"response" : "something went wrong"})
+    }
+})
+
 routes.get("/", async (req, res) => {
     const allPosts = await prisma.post.findMany({
         include: {
@@ -80,6 +115,6 @@ routes.get("/", async (req, res) => {
     return res.json(allPosts)
 })
 
-routes.get("/")
+
 
 module.exports = routes;

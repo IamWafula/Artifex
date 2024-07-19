@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth"
 
-import {getDatabase, onValue, ref, set} from "firebase/database"
-
+import {getDatabase, onValue, set} from "firebase/database"
+import {uploadString, getStorage, ref, getDownloadURL} from "firebase/storage"
 import { getDoc, getFirestore, setDoc, collection,doc, addDoc, getDocs  } from "firebase/firestore";
 
 
@@ -13,19 +13,21 @@ import { getDoc, getFirestore, setDoc, collection,doc, addDoc, getDocs  } from "
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_KEY,
-    authDomain: "basket-b5fb8.firebaseapp.com",
-    projectId: "basket-b5fb8",
-    storageBucket: "basket-b5fb8.appspot.com",
-    messagingSenderId: "454921763756",
-    appId: "1:454921763756:web:053228c03e3bf0ed87d809"
+    authDomain: "artifex-3eeb7.firebaseapp.com",
+    projectId: "artifex-3eeb7",
+    storageBucket: "artifex-3eeb7.appspot.com",
+    messagingSenderId: "214715761411",
+    appId: "1:214715761411:web:80be57874d578eb4b61f36"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getFirestore(app)
+const storage = getStorage()
 const auth = getAuth()
 
 const usersRef = collection(database, "users")
+const portfolioImages = ref(storage, 'portfolioImages')
+
 
 const newUser = async (email, password) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -88,7 +90,50 @@ const existingUser = async (email, password) => {
     }
 }
 
+const addImage = async (blob, name, user_id) => {
+
+    const newImageFirebase = ref(portfolioImages, name);
+
+    if (blob){
+        const metadata = {
+            contentType : 'image/jpeg'
+        }
+
+        const snapshot = await uploadString(newImageFirebase, blob, 'data_url')
+        const downloadUrl = await getDownloadURL(newImageFirebase, blob, 'data_url')
+
+
+        return {
+            id : snapshot.metadata.generation,
+            imgUrl : downloadUrl,
+            userId : user_id,
+            postId : null,
+            prompt : ""
+        }
+
+        // const url = `${import.meta.env.VITE_BACKEND_URL}/images`
+        // const options = {
+        //     method: "POST",
+        //     headers: {
+        //         'accept': 'application/json',
+        //         "Content-Type": "application/json",
+        //     },
+        //     body : JSON.stringify({
+        //         image_id : snapshot.metadata.generation,
+        //         downloadUrl : downloadUrl,
+        //         user_id : user_id,
+        //     })
+        // }
+
+        // const response = await fetch(url, options)
+        // const resJson = await response.json()
+
+        // return resJson
+    }
+}
+
 export {
     newUser,
-    existingUser
+    existingUser,
+    addImage
 }

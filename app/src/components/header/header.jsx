@@ -45,6 +45,7 @@ export default function Header(){
             // once auth state changes, change cache
             changeCache(userData)
             setIsOpen(false)
+            setNavHome(true)
         }
     }
     // TODO : Add Page reload to refetch data
@@ -55,6 +56,7 @@ export default function Header(){
             // once auth state changes, change cache
             changeCache(userData)
             setIsOpen(false)
+            setNavHome(true)
         }
     }
 
@@ -92,7 +94,7 @@ export default function Header(){
 
             <h1
                 onClick={()=>{setNavHome(true)}}
-
+                style={{cursor: 'pointer'}}
             >Artifex</h1>
 
             <input id={styles.searchterm} type="text" placeholder="enter search term" />

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Footer from "../../components/footer/footer"
 import Header from "../../components/header/header"
 import ArtImage from "../../components/image/image"
@@ -23,29 +23,31 @@ export default function NewImage () {
     const [selectedImages, setSelectedImages] = useState([])
     const [navPending, setNavPending] = useState(false)
 
+    const getImageRef = useRef(null)
+
     async function handleNewImage (e) {
 
         if (!description) {return }
-
+        getImageRef.current.disabled = true;
         const response = await API.postNewImage(cookies.get('currentUser').id, description)
-
         if (response.status == 200){
             let resJson = await response.json()
             resJson['imagePrompt'] = description
             resJson['user'] = cookies.get('currentUser')
-
             // add generated images to current sessions generated images
             cookies.set('images', [...cookies.get('images'), resJson])
-            setImages([... new Set(cookies.get('images'))])
+            setImages([...images, resJson])
         }
-
+        getImageRef.current.disabled = false;
     }
 
     function uniqueImages(list_images){
         const seen = new Set()
         const unique = list_images.filter(item => {
-            const json = JSON.stringify(item);
-            return seen.has(json) ? false : seen.add(json);
+            if (!item.imgUrl){
+                return seen.has(item.id) ? false : seen.add(item.id);
+            }
+            return seen.has(item.imgUrl) ? false : seen.add(item.imgUrl);
         });
 
         return unique;
@@ -58,10 +60,10 @@ export default function NewImage () {
                 const allUserImages = await API.getUserImages(cookies.get('currentUser').id);
 
                 const combinedImages = [...allUserImages, ...cookies.get('images')]
-
                 // ensure that combines images are unique
-                cookies.set('images', uniqueImages(combinedImages))
-                setImages(cookies.get('images'))
+                const uniqueImagesList =  uniqueImages(combinedImages)
+                cookies.set('images', uniqueImagesList)
+                setImages(uniqueImagesList)
             }
         }
 
@@ -72,6 +74,25 @@ export default function NewImage () {
     const handleImageChange = useCallback((imageData) => {
         setCurrentImage(imageData)
     })
+
+    const removeImage = (generatedId, image) => {
+        // Remove cache image from state and cookies
+        setImages((prev) => {
+            let temp = [...prev]
+
+            for (let i in temp){
+                if (temp[i].id == generatedId){
+                    temp[i] = image
+                }
+            }
+
+            return temp
+        })
+
+        cookies.set("images", [])
+        getImageRef.current.disabled = false;
+
+    }
 
     return (
         <div id={styles.newpost}>
@@ -86,7 +107,7 @@ export default function NewImage () {
                 <input type="text" placeholder="enter image description"
                     onChange={(e)=> {setDescription(e.target.value)}}
                 ></input>
-                <button onClick={handleNewImage}> get image </button>
+                <button onClick={handleNewImage} ref={getImageRef}> get image </button>
             </div>
 
             <div id={styles.image} >
@@ -94,14 +115,24 @@ export default function NewImage () {
             </div>
 
             <div id={styles.annotate} >
-                <button onClick={()=> setNavPending(true)}> annotate </button>
+                <button onClick={()=> setNavPending(true)} > annotate </button>
             </div>
 
             <div id={styles.images} >
 
                 {
                     images.map((image) => {
-                        return ( <ArtImage key={image.id} selectedImages={selectedImages} setImages={setImages} setSelectedImages={setSelectedImages} setCurrentImage={handleImageChange} imageData={image} prevImage={true} imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"} /> )
+                        return ( <ArtImage
+                            key={image.id}
+                            selectedImages={selectedImages}
+                            setImages={setImages}
+                            setSelectedImages={setSelectedImages}
+                            setCurrentImage={handleImageChange}
+                            imageData={image}
+                            prevImage={true}
+                            imageUrl={"https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"}
+                            removeImage={removeImage}
+                            /> )
                     })
                 }
 
