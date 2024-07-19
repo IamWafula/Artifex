@@ -68,7 +68,6 @@ export default function ViewPost(){
         getData(postId)
     }, [])
 
-    console.log(postData)
 
     // TODO: Has to be a better way to implement this
     // TODO: Add bidder information and ratings
