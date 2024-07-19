@@ -39,9 +39,8 @@ export default function PostCmp(props){
 
             <div className={styles.details_container}>
 
-                <div>
+                <div className={styles.info}>
                     <h2>{postDetails.title}</h2>
-                    <h4>{postDetails.category}</h4>
                     <p>{postDetails.description}</p>
                 </div>
 
@@ -63,7 +62,10 @@ export default function PostCmp(props){
                     <img src={postDetails.user.profileImage} />
                 </div>
 
+
+                <h4>{postDetails.category}</h4>
                 <p className={styles.date}>{postDetails.datePublished.split(":")[0]}</p>
+
             </div>
         </div>
     )

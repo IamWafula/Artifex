@@ -1,6 +1,6 @@
 import styles from "./header.module.css"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faUser, faX} from '@fortawesome/free-solid-svg-icons'
+import {faUser, faSearch} from '@fortawesome/free-solid-svg-icons'
 import Modal from "../modal/modal"
 import { useState } from "react"
 
@@ -97,7 +97,10 @@ export default function Header(){
                 style={{cursor: 'pointer'}}
             >Artifex</h1>
 
-            <input id={styles.searchterm} type="text" placeholder="enter search term" />
+            {/* <div id={styles.searchBar}>
+                <input id={styles.searchterm} type="text" placeholder="enter search term" />
+                <FontAwesomeIcon icon={faSearch} color="white"/>
+            </div> */}
 
             <div id={styles.login}>
                 <FontAwesomeIcon icon={faUser}

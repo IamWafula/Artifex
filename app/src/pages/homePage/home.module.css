@@ -2,9 +2,10 @@
     height: 120vh;
     width: 100%;
     display: grid;
-
+    background-color: black;
     grid-template-areas:
     "header header header"
+    ". menu ."
     ". tabs ."
     "filters content ."
     ". content ."
@@ -13,10 +14,40 @@
     ;
 
     grid-template-columns: 2fr 3fr 1fr;
-    grid-template-rows: 100px 0.5fr 3fr 3fr 0.5fr 100px;
+    grid-template-rows: 100px 50px 50px 3fr 3fr 0.5fr 50px;
 }
 
-#tabs {grid-area: tabs;}
+#home::-webkit-scrollbar{
+    display: none;
+}
+
+
+#tabs {grid-area: tabs;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    .title {
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        font-size: large;
+        font-weight: bolder;
+
+        .underline {
+            height: 5px;
+            width: 80px;
+            border: 100%;
+            transition: 0.2s ease-in-out;
+
+        }
+    }
+}
 
 #content::--webkitscrollbar {
     display: none;
@@ -36,5 +67,10 @@
     scrollbar-width: none;  /* Firefox */
 }
 
-#filters {grid-area: filters;}
+#filters {
+    grid-area: filters;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
 #pagenumbers {grid-area: pagenumbers;}
