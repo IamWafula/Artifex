@@ -62,10 +62,17 @@ const API = {
         const response = await fetch(url, options)
         const resJson = await response.json()
 
-        // only allow images not tagged in any post
-        return resJson.filter((item) => {
-            return item.postId == null
+        const filteredImagesPosts = resJson.filter((item) => {
+            return (item.postId == null || item.prompt == "")
         })
+
+        // Only show images generated
+        const filteredImagesPrompts = filteredImagesPosts.filter((item) => {
+            return (item.prompt.length > 0)
+        })
+
+        // only allow images not tagged in any post
+        return filteredImagesPrompts
     },
     getImageUrl: async (id) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`

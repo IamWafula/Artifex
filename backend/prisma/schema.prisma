@@ -73,6 +73,7 @@ model PostLike {
   userId String
 }
 
+// TODO: Link to Bid to disable bidding
 model Post {
   id Int @id @default(autoincrement())
   title String @default("")

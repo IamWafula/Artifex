@@ -68,6 +68,8 @@ export default function ViewPost(){
         getData(postId)
     }, [])
 
+    console.log(postData)
+
     // TODO: Has to be a better way to implement this
     // TODO: Add bidder information and ratings
     if (postData.userId == currentUserId){
@@ -153,11 +155,17 @@ export default function ViewPost(){
             </div>
 
             <div id={styles.postBtn}>
-                <button
-                    onClick={()=> {
-                        setNavBid(true)
-                    }}
-                > Add Bid </button>
+                {
+                    (!postData.commissionId) && (
+                        <button
+                            onClick={()=> {
+                                setNavBid(true)
+                            }}
+                        > Add Bid </button>
+                    )
+                }
+
+
             </div>
 
             <Footer />
