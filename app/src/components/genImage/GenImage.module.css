@@ -1,11 +1,18 @@
 .outline {
-    border: 2px solid black;
+    border: 2px solid rgba(255, 255, 255, 0.093);
+    background-color: rgb(23, 23, 23);
     padding: 20px;
     position: relative;
     width: fit-content;
     height: fit-content;
+
+    cursor: pointer;
 }
 
+.outline:hover{
+    scale: 1.1;
+    transition: 0.2s;
+}
 
 .main_image {
     background-position: center;

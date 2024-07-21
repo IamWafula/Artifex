@@ -10,7 +10,6 @@
 #menu{
     min-width: 200px;
     width: fit-content;
-    background-color: aliceblue;
     display: flex;
     justify-content: center;
     gap: 20px;
@@ -24,13 +23,13 @@
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(5.7px);
     -webkit-backdrop-filter: blur(5.7px);
-    border: 1px solid rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(173, 172, 172, 0.76);
 
     li {
         padding: 5px 0px 5px 0px;
         width: 100%;
         text-align: center;
-        color: white;
+        color: rgb(196, 196, 196);
     }
     li:first-child{
         border-radius: 20px 0 0 20px;

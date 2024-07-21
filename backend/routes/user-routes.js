@@ -30,7 +30,11 @@ routes.get("/:id", async (req, res, next) => {
             include : {
                 bids : true,
                 commissions: true,
-                posts : true,
+                posts : {
+                    include : {
+                        images : true
+                    }
+                },
                 images : true,
                 likedPosts : true
             }

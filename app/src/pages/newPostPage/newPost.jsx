@@ -7,6 +7,7 @@ import Cookies from "universal-cookie"
 import { Navigate } from "react-router-dom"
 
 import API from '../../utils/api'
+import MenuBar from "../../components/menubar/menuBar"
 
 
 export default function NewImage () {
@@ -38,7 +39,6 @@ export default function NewImage () {
             cookies.set('images', [...cookies.get('images'), resJson])
             setImages([...images, resJson])
         }
-        getImageRef.current.disabled = false;
     }
 
     function uniqueImages(list_images){
@@ -91,23 +91,31 @@ export default function NewImage () {
 
         cookies.set("images", [])
         getImageRef.current.disabled = false;
-
+        setCurrentImage(imageData)
     }
 
     return (
         <div id={styles.newpost}>
             <Header />
 
+            <MenuBar />
+
             {
                 (navPending && (selectedImages.length == 3)) && (
                     <Navigate to="/pending" state={{selectedImages: selectedImages}} />
                 )
             }
-            <div id={styles.form}>
-                <input type="text" placeholder="enter image description"
-                    onChange={(e)=> {setDescription(e.target.value)}}
-                ></input>
-                <button onClick={handleNewImage} ref={getImageRef}> get image </button>
+            <div id={styles.desc_form}>
+                <form>
+                    <p>Enter Image description</p>
+                    <textarea type="text" placeholder="description"
+                        onChange={(e)=> {setDescription(e.target.value)}}
+
+                    ></textarea>
+                    <button onClick={handleNewImage} ref={getImageRef}> get image </button>
+
+                </form>
+
             </div>
 
             <div id={styles.image} >

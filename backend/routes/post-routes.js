@@ -103,6 +103,36 @@ routes.get("/:id" , async (req, res) => {
     }
 })
 
+routes.delete("/:id", async (req, res) => {
+    const postId = parseInt(req.params.id);
+
+    const deletedPost = await prisma.post.delete({
+        where : {
+            id: postId
+        }
+    })
+
+    return res.json(deletedPost)
+
+})
+
+routes.get("/user/:id", async (req, res) => {
+    const userId = req.params.id
+    const allUserPosts = await prisma.post.findMany({
+        where: {
+            userId : userId
+        },
+        include: {
+            images: true,
+            user: true,
+            bids: true,
+            likes: true
+        }
+    })
+
+    return res.json(allUserPosts)
+})
+
 routes.get("/", async (req, res) => {
     const allPosts = await prisma.post.findMany({
         include: {
@@ -114,6 +144,9 @@ routes.get("/", async (req, res) => {
     })
     return res.json(allPosts)
 })
+
+
+
 
 
 

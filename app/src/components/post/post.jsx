@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart } from '@fortawesome/free-solid-svg-icons'
+import { faHeart, faTrash } from '@fortawesome/free-solid-svg-icons'
 import Rating from '../rating/rating'
 import styles from  './post.module.css'
 import Cookies from 'universal-cookie'
@@ -17,9 +17,16 @@ export default function PostCmp(props){
 
     const imageIdx = Math.floor(Math.random()*2)
 
-    if (!postDetails || !postDetails.images || !postDetails.images[0].imgUrl){
+    if (!postDetails || !postDetails.images[0] || !postDetails.images[0].imgUrl){
         window.location.reload()
         return
+    }
+
+
+    async function handleDelete(e){
+        // TODO: OPEN modal for confirmation
+        e.stopPropagation()
+        await API.deletePost(postDetails);
     }
 
     return(
@@ -27,7 +34,7 @@ export default function PostCmp(props){
 
             onClick={()=>{setNavPost(true)}}
 
-        >
+            >
             {
                 (navPost) && (
                     <Navigate to={`/post/${postDetails.id}`} />
@@ -44,23 +51,37 @@ export default function PostCmp(props){
                     <p>{postDetails.description}</p>
                 </div>
 
-                <div className={styles.likeBtn}>
-                    <FontAwesomeIcon onClick={()=> {liked?
-                        (API.removeLiked(cookies.get('currentUser').id, postDetails.id),
-                        setLiked(false))
-                        :
-                        (API.addLiked(cookies.get('currentUser').id, postDetails.id),
-                        setLiked(true))
-                        }}  icon={faHeart} color={liked? "red" : "grey"} />
-                </div>
+                {/* TODO: Add number of likes and status (commissioned?), arrange by date */}
+                {(!props.userPost) &&
+                    (<div className={styles.likeBtn}>
+                        <FontAwesomeIcon onClick={(e)=> {liked?
+                            (API.removeLiked(cookies.get('currentUser').id, postDetails.id),
+                            setLiked(false))
 
-                <div className={styles.profile}>
-                    <div className={styles.profile_details}>
-                        <p>{postDetails.user.userName}</p>
-                        <Rating rating={postDetails.user.userRating} />
-                    </div>
-                    <img src={postDetails.user.profileImage} />
-                </div>
+                            :
+                            (API.addLiked(cookies.get('currentUser').id, postDetails.id),
+                            setLiked(true))
+                            e.stopPropagation()
+                            }}  icon={faHeart} color={liked? "red" : "grey"} />
+                    </div>)
+                }
+
+                {(props.userPost) &&
+                    (<div className={styles.likeBtn}>
+                        <FontAwesomeIcon onClick={handleDelete} icon={faTrash} color='rgba(255, 0, 0, 0.451)'/>
+                    </div>)
+                }
+
+                {(!props.userPost) &&
+                    (<div className={styles.profile}>
+                        <div className={styles.profile_details}>
+                            <p>{postDetails.user.userName}</p>
+                            <Rating rating={postDetails.user.userRating} />
+                        </div>
+                        <img src={postDetails.user.profileImage} />
+                    </div>)
+                }
+
 
 
                 <h4>{postDetails.category}</h4>

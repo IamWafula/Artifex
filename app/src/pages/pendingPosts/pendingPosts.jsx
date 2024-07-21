@@ -8,10 +8,20 @@ import { useEffect, useState } from "react";
 
 import Cookies from "universal-cookie";
 import API from "../../utils/api";
+import MenuBar from "../../components/menubar/menuBar";
 
 export default function PendingPosts () {
 
     const location = useLocation();
+
+    if (location.state){
+        if (!location.state.selectedImages){
+            return (<Navigate to="/new-post" />)
+        }
+    }else {
+        return (<Navigate to="/new-post" />)
+    }
+
     const images = location.state.selectedImages;
     const [imagesAnnotated, setImagesAnnotated] = useState(images)
     const [currentImage, setCurrentImage] = useState(null)
@@ -23,13 +33,20 @@ export default function PendingPosts () {
 
     const cookies = new Cookies(null, {path : "/"})
 
-    async function handleNewPost(){
-        API.uploadImages(images, title, description, category)
-        cookies.set("images", [])
-        setNavHome(true)
+    async function handleNewPost(e){
+        e.preventDefault()
+        if (!category || !title || !images || !description) {
+            // TODO: Error handling here
+        }else{
+            API.uploadImages(images, title, description, category)
+            cookies.set("images", [])
+            setNavHome(true)
+        }
+
     }
 
     const categories = {
+        '' : 'Select a category',
         "digital" : "Digital Art",
         "3D" : "3d Models",
         "oil" : "Oil on Canvas",
@@ -40,6 +57,8 @@ export default function PendingPosts () {
     return (
         <div id={styles.newpost}>
             <Header />
+
+            <MenuBar />
 
             {
                 (!images) && (
@@ -77,19 +96,24 @@ export default function PendingPosts () {
             </div>
 
             <div id={styles.details} >
-                <input placeholder="post title" onChange={(e)=> {setTitle(e.target.value)}}/>
-                <textarea id={styles.desc} placeholder="post description" onChange={(e)=> {setDescription(e.target.value)}}/>
-                <label for="category">Choose a category</label>
-                <select name="category"  onChange={(e)=> {setCategory(e.target.value)}}>
+                <form>
+                    <p>New Post</p>
+                    <div id={styles.title_category}>
+                        <input placeholder="title" onChange={(e)=> {setTitle(e.target.value)}}/>
+                        <select name="category" id={styles.category_select} onChange={(e)=> {setCategory(e.target.value)}}>
+                            {Object.entries(categories).map((value)=> {
+                                const id = value[0]
+                                const text = value[1]
+                                return (<option value={id}>{text}</option>)
+                            })}
+                            </select>
 
-                    {Object.entries(categories).map((value)=> {
-                        const id = value[0]
-                        const text = value[1]
-                        return (<option value={id}>{text}</option>)
-                    })}
-                </select>
+                    </div>
 
-                <button onClick={handleNewPost}>post</button>
+                    <textarea id={styles.desc} placeholder="description" onChange={(e)=> {setDescription(e.target.value)}}/>
+                    <button onClick={handleNewPost}>post</button>
+                </form>
+
             </div>
 
 

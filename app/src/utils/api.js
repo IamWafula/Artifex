@@ -74,6 +74,22 @@ const API = {
         // only allow images not tagged in any post
         return filteredImagesPrompts
     },
+    getUserPosts : async (userId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/posts/user/${userId}`
+
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+
+        return resJson
+    },
     getImageUrl: async (id) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`
 
@@ -228,6 +244,19 @@ const API = {
 
         return resJson;
 
+    },
+    deletePost: async (postDetails) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/posts/${postDetails.id}`
+        let options = {
+            method: "DELETE",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+        return resJson;
     }
 
 }
