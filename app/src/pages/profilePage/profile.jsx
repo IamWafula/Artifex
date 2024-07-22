@@ -29,6 +29,14 @@ export default function Profile () {
     useEffect(()=> {
         async function getPosts(){
             setUserPosts(await API.getUserPosts(user.id))
+
+
+            const lastRun = await API.getLastRecommendationRun()
+
+            // Reruns every 6 hours
+            if (parseInt(lastRun) >= 6){
+                await API.rerunRecommendation()
+            }
         }
 
         getPosts()

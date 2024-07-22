@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder
@@ -68,6 +69,8 @@ def get_matrix(posts, n):
         likes_sparse
         ))
 
+    print(cat_features)
+
     sim_matrix = cosine_similarity(combined_features)
     
     for row_idx in range(len(sim_matrix)):
@@ -78,28 +81,209 @@ def get_matrix(posts, n):
     return sim_matrix
 
 
-def getPostRecommendations(user_likes, sim_matrix):
+def generateNGram(text, n=2):
+    words = text.split()
+    # get words from length 0 to n
+    return [tuple(words[i:i+n]) for i in range(len(words)-n+1)]
 
-    sim_scores = []        
+def getTextSimilarity(all_items, n=2):
+    all_scores = []
+
+    for i in all_items:
+        similarity_scores = []
+        for j in all_items:
+            n_grams1 = set(generateNGram(i, n))
+            n_grams2 = set(generateNGram(j, n))
+
+            
+            intersection = n_grams1.intersection(n_grams2)
+            union = n_grams1.union(n_grams2)
+
+            # Normalize the similarity by dividing intersections by unions
+            sim_score = len(intersection) / len(union) if union else 0
+
+            similarity_scores.append(sim_score)
+        
+        all_scores.append(similarity_scores)
+
+    return all_scores
+
+def calculateNumSimilarityNorm(n1, n2, max_value):
+    num1 = int(n1) + 1  
+    num2 = int(n2) + 1
+                                             
+    normalized_score = 1 - (abs(num1 - num2)/ max_value)
+
+    return normalized_score
+
+def calculateNumSimilarity(n1, n2):
+    log_num1 = math.log(int(n1) + 1)
+    log_num2 = math.log(int(n2) + 1)
     
+    # exp inherently ensures a value between 0 and 1
+    # smaller values (1 and 2) will have less significance than large ones (4 and 6) --> more data points, certainity
+    normalized_score = math.exp(-abs(log_num2 - log_num1))
+
+    return normalized_score
+
+def getNumericalSimilarity(all_items, max_value):
+    all_scores = []
+    
+    # when there is a max value, easier to calculate similariry
+    # normalized difference
+    if max_value:
+        for i in all_items:
+            similarity_scores = []
+            for j in all_items:  
+                
+                similarity_scores.append(calculateNumSimilarityNorm(i, j, max_value))
+
+            all_scores.append(similarity_scores)
+
+        return all_scores
+
+    for i in all_items:
+        similarity_scores = []
+        for j in all_items:
+            similarity_scores.append(calculateNumSimilarity(i, j))
+
+        all_scores.append(similarity_scores)
+
+    return all_scores
+
+def getCustomMatrix(posts, n):
+    n = n+1    
+    all_posts = [None for _ in range(n)]
+
+    for post in posts:
+        all_posts[post['id']] = post
+
+    all_categories = [""]*n
+    all_descriptions = [""]*n
+    # TODO: insert date due
+    all_titles = [""]*n
+    all_image_prompts = [""]*n
+    all_user_rating = [0]*n
+    all_bid_counts = [0]*n
+    all_likes = [0]*n
+
+
+    for idx in range(0, len(all_posts)):
+        item = all_posts[idx]
+        if not item : continue
+        all_categories[item['id']] =  item['category']
+        all_descriptions[item['id']] = item['description']
+        all_titles[item['id']]  = item['title']
+                
+        for image in item['images']:
+            all_image_prompts[item['id']] += image['prompt']
+
+        all_user_rating[item['id']]  = float(item['user']['userRating'])
+        all_bid_counts[item['id']]  = len(item['bids'])
+        all_likes[item['id']]  = len(item['likes'])
+
+    # using n-grams for text features
+    cat_features = getTextSimilarity(all_categories, 1)
+    desc_features = getTextSimilarity(all_descriptions, 3)        
+    title_features = getTextSimilarity(all_titles, 1)
+    prompts_features = getTextSimilarity(all_image_prompts, 1)  
+
+    # using logs for numerical values
+    rating_features = getNumericalSimilarity(all_user_rating, 5)
+    bids_features = getNumericalSimilarity(all_bid_counts, False)
+    likes_features = getNumericalSimilarity(all_likes, False)
+
+    n_items = len(cat_features[0])
+    
+    # previous blocker where pointers were to the same object and matrix was duplicated 
+    sim_matrix = [[None for _ in range(n_items)] for _ in range(n_items)]
+
+    
+    # for each post
+    for row_idx in range(n_items):
+
+        # for each of the other posts, get calculated feature
+        for col_idx in range(n_items): 
+        
+
+            w_cat = cat_features[row_idx][col_idx]
+            w_desc = desc_features[row_idx][col_idx]
+            w_title = title_features[row_idx][col_idx]    
+            w_prompt = prompts_features[row_idx][col_idx]
+
+            w_rating = rating_features[row_idx][col_idx]
+            w_bids = bids_features[row_idx][col_idx]
+            w_likes = likes_features[row_idx][col_idx]
+
+            total_sim = (w_cat, w_desc, w_title , w_prompt, w_rating, w_bids, w_likes)
+
+            if all_posts[col_idx] is not None:                
+                sim_matrix[row_idx][col_idx] = total_sim
+            else:
+                sim_matrix[row_idx][col_idx] = []
+        
+        if row_idx == 6:                
+            weights = [0.2, 0.2, 0.2, 0.3, 0.05, 0.05, 0.05 ]
+
+            for col_idx in range(n_items):
+                total_sim = 0
+                if not sim_matrix[row_idx][col_idx]: continue                    
+
+                for i in range(len(weights)):
+                    total_sim += (sim_matrix[row_idx][col_idx][i] * weights[i])                    
+                    
+    return sim_matrix, n_items
+
+
+def getPostRecommendations(user_recs, user_likes, weights, n, post_matrix):    
+    sim_scores = []
+
+    sim_matrix = [[0 for _ in range(n)] for _ in range(n)]
+
+    # for each post
+    for row_idx in range(n):
+
+        # for each of the other posts, get calculated feature
+        for col_idx in range(n): 
+            if not post_matrix[row_idx][col_idx]: 
+                sim_matrix[row_idx][col_idx] = 0
+                continue
+
+            total_sim = 0        
+            for i in range(len(weights)):                
+                total_sim += (post_matrix[row_idx][col_idx][i] * weights[i])
+            
+            sim_matrix[row_idx][col_idx] = total_sim if total_sim <= 1 else 1
+
+    liked_ids = [like['post']['id'] for like in user_likes]
+    liked_recs = set()
+
+    threshold = 0.3
     for like in user_likes:
         # sort by similarity scores
-        sorted_sims = sorted(list(enumerate(sim_matrix[like['post']['id']])), key=lambda x: x[1], reverse=True)
+        sorted_sims = sorted(list(enumerate(sim_matrix[like['post']['id']])), key=lambda x: x[1],reverse=True)
+
+        # get only the top recommendations with threshold         
+        scores = [ idx for idx,score in sorted_sims if (float(score) > threshold and idx not in liked_ids) ]
+        # remove None values and empty arrays
+        scores = [score for score in scores if score]
         
-        threshold = 0.9
-        # get only the top recommendations with 0.4 threshold         
-        scores = [ sim_scores.append(score) for score in sorted_sims if float(score[1]) > threshold ]
-        sim_scores.append(scores)
+        [ liked_recs.add(id_rec) for id_rec in scores if id_rec  ]
     
-    recommendations = []
-    for recs in sim_scores:
-        if not recs: continue        
-        recommendations.append(recs[0])
     
-    user_likes = [ like['post']['id'] for like in user_likes]
+    similar_user_recs = set()    
 
-    # ensure recommendations are not in likes already
-    recommendations = list(set([i for i in recommendations if i not in user_likes]))
-    recommendations = [i for i in recommendations if i is not None]
+    for rec in user_recs:
+        sorted_sims = sorted(list(enumerate(sim_matrix[rec])), key=lambda x: x[1], reverse=True)
+        # get only the top recommendations with threshold         
+        scores = [ idx for idx,score in sorted_sims if (float(score) > threshold and idx not in liked_ids) ]
 
+        # remove None and empty arrays
+        scores = [score for score in scores if score]
+        
+        [ similar_user_recs.add(id_rec) for id_rec in scores if id_rec]
+
+
+    recommendations = list(liked_recs) + list(similar_user_recs)
+    
     return recommendations

@@ -23,7 +23,5 @@ def submitRecs(user_id, recs):
         "recommendations" : recs
     }
     r = requests.post(url, json=body)
-
+    
     return r.json()
-
-    return
