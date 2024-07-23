@@ -12,8 +12,17 @@
     min-width: 120px;
     padding: 0 10px 0 0px;
 
+    position: relative;
+
     p{
         font-size: 50px;
         color: rgb(255, 255, 255);
+    }
+
+    svg {
+        position: absolute;
+        float: right;
+        top: 5px;
+        right: 10px;
     }
 }

@@ -123,7 +123,12 @@ export default function NewImage () {
             </div>
 
             <div id={styles.annotate} >
-                <button onClick={()=> setNavPending(true)} > annotate </button>
+
+                {(selectedImages.length == 3)
+                &&
+                (<button onClick={()=> setNavPending(true)} > annotate </button>)
+                }
+
             </div>
 
             <div id={styles.images} >

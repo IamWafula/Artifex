@@ -48,6 +48,21 @@ const API = {
         const response = await fetch(url, options)
         return response
     },
+    deleteImage : async (imageId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/images/${imageId}`
+        let options = {
+            method: "DELETE",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = response.json()
+
+        return resJson
+    },
     getUserImages : async (userId) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/images/${userId}`
 
