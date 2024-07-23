@@ -5,6 +5,8 @@ import PostCmp from '../../components/post/post'
 import Filter from '../../components/filter/Filter.jsx'
 import MenuBar from '../../components/menubar/menuBar.jsx'
 
+import UserInfo from '../../components/userInfo/userInfo.jsx'
+
 import API from "../../utils/api";
 
 import { useEffect, useState } from "react";
@@ -112,6 +114,7 @@ export default function Home() {
 
             <div id={styles.filters}>
                 <Filter />
+                <UserInfo />
             </div>
 
             <div id={styles.pagenumbers}>

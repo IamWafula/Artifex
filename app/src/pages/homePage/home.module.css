@@ -2,13 +2,16 @@
     height: 120vh;
     width: 100%;
     display: grid;
-    background-color: black;
+    background-image: url("../../../assets/bk-trial.png");
+    background-size: cover;
+    object-fit: contain;
+
     grid-template-areas:
     "header header header"
     ". menu ."
     ". tabs ."
     "filters content ."
-    ". content ."
+    "filters content ."
     ". pagenumbers ."
     "footer footer footer"
     ;
@@ -27,6 +30,10 @@
     align-items: center;
     justify-content: center;
     gap: 20px;
+
+    p{
+        font-family: sans-serif;
+    }
 
     .title {
         color: white;
@@ -58,10 +65,12 @@
     flex-direction: column;
     gap: 20px;
     overflow-y: scroll;
+    margin-top: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
     align-items: center;
     overflow-x: visible;
+
 
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
