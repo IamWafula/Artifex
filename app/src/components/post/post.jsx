@@ -84,8 +84,8 @@ export default function PostCmp(props){
 
 
 
-                <h4>{postDetails.category}</h4>
-                <p className={styles.date}>{postDetails.datePublished.split(":")[0]}</p>
+                <h4>category: {postDetails.category}</h4>
+                <p className={styles.date}>date posted: {postDetails.datePublished.split(":")[0]}</p>
 
             </div>
         </div>

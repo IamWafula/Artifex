@@ -6,7 +6,6 @@ export default function Filter(props){
 
         <p>Filters</p>
 
-        <hr />
 
 
 

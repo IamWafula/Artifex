@@ -111,7 +111,7 @@ export default function ViewPost(){
 
                 {
                     (bids.length ==0) && (
-                        <p>There are no bids</p>
+                        <p>There are no bids for this post</p>
                     )
                 }
 

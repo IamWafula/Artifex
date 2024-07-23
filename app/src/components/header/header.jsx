@@ -9,6 +9,7 @@ import Cookies from 'universal-cookie';
 // firebase utils
 import {newUser, existingUser} from "../../utils/firebase_utils"
 import { Navigate } from "react-router-dom"
+import MenuBar from "../menubar/menuBar"
 
 export default function Header(){
 
@@ -101,6 +102,7 @@ export default function Header(){
                 <input id={styles.searchterm} type="text" placeholder="enter search term" />
                 <FontAwesomeIcon icon={faSearch} color="white"/>
             </div> */}
+
 
             <div id={styles.login}>
                 <FontAwesomeIcon icon={faUser}
