@@ -1,12 +1,23 @@
-.post{
+ .post{
     display: flex;
     position: relative;
     flex-direction: rßow;
     padding: 10px;
-    border: 2px solid black;
     border-radius: 20px;
-    width: 60%;
-    min-width: 500px;
+    width: 75%;
+    height: 200px;
+    min-width: 300px;
+
+    background: rgba( 255, 255, 255, 0.25 );
+    box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+    backdrop-filter: blur( 20px );
+    -webkit-backdrop-filter: blur( 20px );
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.387);
+
+
+    color: white;
+    font-family: sans-serif;
 
     transition: 0.2s;
     cursor: pointer;
@@ -22,9 +33,9 @@
     margin-right: 10px;
 
     img {
-        height: 150px;
-        width: 150px;
-        border-radius: 10px 0px 0px 10px;
+        height: 200px;
+        width: 200px;
+        border-radius: 10px 10px 10px 10px;
     }
 }
 
@@ -33,30 +44,35 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    padding: 5px 10px 5px 10px;
+
 
     h2, h4{
         margin: 0 0 5px 0;
     }
 
     h2 {
-        font-size: 22px;
+        font-size: 25px;
+        width: 97%;
     }
 
     h4 {
-        font-size: 11px;
-        color: #169873;
+        margin-top: auto;
+        font-size: 15px;
+        color: #b9b9b9;
     }
 
     p{
-        font-size: 13px;
+        font-size: 15px;
+        width: 97%;
     }
 
 
     .date {
         font-size: 15px;
         color: #6A6A6A;
-        margin-top: auto;
     }
+
 }
 
 .likeBtn{

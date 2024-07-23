@@ -8,7 +8,7 @@ import NewPost from './pages/newPostPage/newPost'
 import PendingPosts from './pages/pendingPosts/pendingPosts'
 import ViewPost from './pages/viewPostPage/viewPost'
 import AddBid from './pages/addBidPage/addBid.jsx'
-// import PendingPosts from './pages/pendingPosts/pendingPosts'
+import Profile from './pages/profilePage/profile.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,6 +23,7 @@ function App() {
         <Route path="/pending" element={<PendingPosts />} />
         <Route path="/post/:id" element={<ViewPost/>} />
         <Route path="/bid/:id" element={<AddBid/>} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
 
     </Router>

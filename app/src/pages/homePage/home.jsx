@@ -2,6 +2,10 @@ import styles from "./home.module.css"
 import Header from "../../components/header/header"
 import Footer from "../../components/footer/footer"
 import PostCmp from '../../components/post/post'
+import Filter from '../../components/filter/Filter.jsx'
+import MenuBar from '../../components/menubar/menuBar.jsx'
+
+import UserInfo from '../../components/userInfo/userInfo.jsx'
 
 import API from "../../utils/api";
 
@@ -66,9 +70,29 @@ export default function Home() {
 
             <Header />
 
+            <MenuBar />
+
+
             <div id={styles.tabs}>
-                <button onClick={()=>{setNaveNewPost(true)}}>new post</button>
-                <button onClick={()=>{setShowAllPosts(!showAllPosts)}}>recommendations/allPosts</button>
+
+                <div className={styles.title}
+                    onClick={()=>{setShowAllPosts(true)}}
+                >
+                    <p>All Posts</p>
+                    <div className={styles.underline}
+                        style={{ backgroundColor: showAllPosts? "rgb(80, 80, 80)" : "" }}
+                    >
+                    </div>
+                </div>
+
+                <div className={styles.title}
+                    onClick={()=>{setShowAllPosts(false)}}
+                >
+                    <p>Recommendations</p>
+                    <div  className={styles.underline}
+                    style={{ backgroundColor: showAllPosts? "" : "rgb(80, 80, 80)" }}>
+                    </div>
+                </div>
             </div>
 
             <div id={styles.content}>
@@ -89,10 +113,13 @@ export default function Home() {
             </div>
 
             <div id={styles.filters}>
-
+                <Filter />
+                <UserInfo />
             </div>
 
-            <div id={styles.pagenumbers}></div>
+            <div id={styles.pagenumbers}>
+
+            </div>
 
             <Footer />
         </div>

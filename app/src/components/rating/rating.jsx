@@ -9,7 +9,7 @@ export default function Rating(props){
 
     for (let i = 0; i < stars; i++){
         starsElm.push(
-            <FontAwesomeIcon key={i} icon={faStar} color="gold" />
+            <FontAwesomeIcon key={i} icon={faStar} color="rgba(255, 217, 0, 0.888)" />
         )
     }
 

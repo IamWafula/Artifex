@@ -30,7 +30,11 @@ routes.get("/:id", async (req, res, next) => {
             include : {
                 bids : true,
                 commissions: true,
-                posts : true,
+                posts : {
+                    include : {
+                        images : true
+                    }
+                },
                 images : true,
                 likedPosts : true
             }
@@ -147,7 +151,11 @@ routes.post("/liked", async (req, res, next) => {
         const newLiked = await prisma.postLike.create({
             data: {
                 postId,
-                userId
+                users : {
+                    connect : {
+                        id : userId
+                    }
+                }
             }
         })
         res.json(newLiked)
@@ -157,12 +165,14 @@ routes.post("/liked", async (req, res, next) => {
     }
 })
 
+// TODO: Could consolidate these two to be a unique field
 routes.delete("/liked", async (req, res, next) => {
     try {
         const {userId, postId} = req.body;
         const toDelete = await prisma.postLike.findMany({
             where: {
-                userId: userId,
+                postId : postId,
+
                 postId : postId
             }
         })
