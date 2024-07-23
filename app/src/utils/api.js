@@ -257,6 +257,29 @@ const API = {
         const response = await fetch(url, options)
         const resJson = await response.json()
         return resJson;
+    },
+    getLastRecommendationRun : async () => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/user/recommendations/lastrun`
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+
+
+        return resJson;
+    },
+    rerunRecommendation : async () => {
+        const url = `${import.meta.env.VITE_FLASK_URL}/ `
+        const response = await fetch(url)
+        const resJson = await response.json()
+        console.log(resJson)
+
+        return resJson;
     }
 
 }

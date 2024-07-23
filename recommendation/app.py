@@ -2,6 +2,8 @@ from flask import Flask, json
 import model.user_rec as userRec
 import model.post_rec as postRec
 
+from model.graph import Graph, User, Post
+
 import utils.backend as dUsers
 
 import json
@@ -12,19 +14,21 @@ load_dotenv()
 
 from flask_cors import CORS, cross_origin
 
-
 app = Flask(__name__)
 cors = CORS(app)
+app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy   dog'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-def getRecommendations(user_id, all_users_data, liked_matrix, post_matrix):
+def getRecommendations(user_id, all_users_data, liked_graph,n_items, post_matrix):
     # get the first data since its always going to be one
     liked_posts = [user["likedPosts"] for user in all_users_data if user["id"] == user_id][0]
     user_recs = []
     liked_recs = []
     if liked_posts:
-        user_recs = userRec.getUserRecommendations(liked_posts, liked_matrix)
-        liked_recs = postRec.getPostRecommendations(liked_posts, post_matrix)
+
+        user_recs = userRec.getUserRecommendations(user_id, liked_graph)
+        weights = [0.2, 0.2, 0.2, 0.3, 0.05, 0.05, 0.05 ]
+        liked_recs = postRec.getPostRecommendations(user_recs, liked_posts, weights,n_items,post_matrix)
     
     combined_recs = user_recs + liked_recs
     combined_recs = list(set(combined_recs))
@@ -40,20 +44,60 @@ def run_recommendations():
 
     all_users = dUsers.getUsers()
     all_posts = dUsers.getPosts()
-
     max_post_id = max([post['id'] for post in all_posts])
 
     # get adjacency matrix of user likes
-    liked_matrix = userRec.get_matrix(all_users, max_post_id)
-    post_matrix = postRec.get_matrix(all_posts, max_post_id)
+    liked_graph = userRec.get_graph(all_users)
+    post_matrix, n_items = postRec.getCustomMatrix(all_posts, max_post_id)
 
-    for user in all_users:        
-        user_recs = getRecommendations(user["id"], all_users, liked_matrix, post_matrix)
+    for user in all_users:                
+        user_recs = getRecommendations(user["id"], all_users, liked_graph, n_items, post_matrix)
         dUsers.submitRecs(user["id"], user_recs)         
 
     response = app.response_class(
-        response=json.dumps({"response" : "Successfully updated recommendations"}),
+        response=json.dumps({"response" : "updated successfully"}),
+        mimetype='application/json'
+    )
+        
+    return response
+
+
+"""
+    Use for testing
+"""
+@app.route("/graph")
+def run_graph():
+    user1 = User("user1")
+    user2 = User("user2")
+    user3 = User("user3")
+    user4 = User("user4")
+
+    post1 = Post("post1")
+    post2 = Post("post2")
+    post3 = Post("post3")
+
+    user1.addNeighbors([post1, post2, post3])
+    user2.addNeighbors([post1, post2, post3])
+
+    user3.addNeighbor(post1)
+
+    user4.addNeighbor(post3)
+
+    graph = Graph()
+    graph.addNodes([post1, post2, post3, user1, user2, user3, user4])
+
+    for i in graph.getTopNeighbors(user1):
+        print(i[0])
+        for j in i[1]:
+            print(j)
+
+    response = app.response_class(
+        response=json.dumps({"response" : "Successfully tested graph"}),
         mimetype='application/json'
     )
 
     return response
+
+if __name__=='__main__':
+    app.debug = True
+    app.run(host='0.0.0.0')

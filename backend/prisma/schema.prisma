@@ -68,9 +68,9 @@ model User {
 model PostLike {
   id Int @id @default(autoincrement())
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  //TODO: Make postId unique for explicit relationship
   postId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  users User[]
 }
 
 // TODO: Link to Bid to disable bidding
@@ -117,4 +117,10 @@ model Commission{
   users User[]
   bid Bid @relation(fields: [bidId], references: [id], onDelete: Cascade)
   bidId Int @unique
+}
+
+
+model RecommendationRun{
+  id Int @id
+  date String
 }

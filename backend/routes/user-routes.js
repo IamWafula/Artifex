@@ -88,12 +88,33 @@ routes.post("/recommendations", async (req, res, next) => {
             skipDuplicates: true
         })
 
+        // update time
+        const timeStamp = await prisma.recommendationRun.update({
+            where :{
+                id : 0
+            },
+            data : {
+                date : Date()
+            }
+        })
 
         res.json(newRecs)
     }catch (error) {
         console.log(error)
         res.json({"response" : "somethign went wrong"})
     }
+})
+
+routes.get("/recommendations/lastrun", async (req,  res, next) => {
+    const lastRun = await prisma.recommendationRun.findUnique({
+        where: {
+            id : 0
+        }
+    })
+
+    const time_diff = Math.abs(new Date(lastRun.date) - new Date(Date()))/(1000 * 60 * 60)
+
+    res.json(time_diff)
 })
 
 

@@ -3,41 +3,36 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics.pairwise import cosine_similarity
 
+from model.graph import Graph, User, Post
+
 # need a way to store similarity matrix and only update when posts are increased instead of redoing
-def get_matrix(users, n):
-    n = n + 1
-    adj_matrix = [[ None for i in range(n+1)] for j in range(n+1)]
+def get_graph(users):
+    graph = Graph()
 
     # create adjacency matrix where nodes are posts and edges are connected where users any two users like a similar post
     for user in users:
+        new_user = User(user['id'])
+        graph.addNode(new_user)
 
         # first node, a users liked post
         for post in user["likedPosts"]:
-            liked_post = post['post']
+            
+            liked_post = post['post']            
             post_id = liked_post['id']
+            
+            if graph.getNode(post_id):
+                new_post = graph.getNode(post_id)
+            else:
+                new_post = Post(post_id)
 
-            # connect to all other nodes, where user has liked both it and other nodes
-            for liked_post in user["likedPosts"]:
-                post_linkend = liked_post['post']
-                linked_idx = post_linkend['id']
+            new_user.addNeighbor(new_post)
+            graph.addNode(new_post)
 
-                adj_matrix[post_id][linked_idx] = 1 if post_id != linked_idx else None
 
-    return adj_matrix
+    return graph
     
 
-def getUserRecommendations(liked_posts, adj_matrix):
-    recommended_ids = []
-    liked_post_ids = []
-    # look through adjacency matrix for similar IDs
-    for liked in liked_posts:
-        liked_id = liked['post']
-        post_id = liked_id['id']
+def getUserRecommendations(user_id, graph):    
+    user_node = graph.getNode(user_id)    
 
-        liked_post_ids.append(post_id)
-        for idx, val in enumerate(adj_matrix[post_id]):
-            recommended_ids.append(idx) if val != None else None
-
-    recommended_ids = list(set([ i for i in recommended_ids if i not in liked_post_ids]))
-
-    return recommended_ids
+    return [int(post.id) for post in graph.getRecommendations(user_node)]
