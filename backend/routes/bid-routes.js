@@ -98,4 +98,22 @@ routes.post( "/", async (req, res, next) => {
     res.json({"response" : "success"})
 })
 
+routes.get("/user/:id", async (req, res) => {
+    const userId = req.params.id
+    const allUserBids = await prisma.bid.findMany({
+        where: {
+            userId : userId
+        },
+        include : {
+            portfolioItems : {
+                include : {
+                    image : true
+                }
+            }
+        }
+    })
+
+    return res.json(allUserBids)
+})
+
 module.exports = routes;

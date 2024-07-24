@@ -86,11 +86,44 @@ const API = {
             return (item.prompt.length > 0)
         })
 
+
         // only allow images not tagged in any post
         return filteredImagesPrompts
     },
+    getAllUserImages : async (userId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/images/${userId}`
+
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+
+        return resJson
+    },
     getUserPosts : async (userId) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/posts/user/${userId}`
+
+        let options = {
+            method: "GET",
+            headers: {
+                'accept': 'application/json',
+                "Content-Type": "application/json",
+            }
+        }
+
+        const response = await fetch(url, options)
+        const resJson = await response.json()
+
+        return resJson
+    },
+    getUserBids : async (userId) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/bids/user/${userId}`
 
         let options = {
             method: "GET",
@@ -292,7 +325,6 @@ const API = {
         const url = `${import.meta.env.VITE_FLASK_URL}/ `
         const response = await fetch(url)
         const resJson = await response.json()
-        console.log(resJson)
 
         return resJson;
     }

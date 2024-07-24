@@ -11,12 +11,15 @@ import AddBid from './pages/addBidPage/addBid.jsx'
 import Profile from './pages/profilePage/profile.jsx'
 
 import NotificationCmp from './components/notification/Notification.jsx'
+import Cookies from 'universal-cookie'
 
 export const ImageLoading = React.createContext()
 
 function App() {
   const [loading, setLoading] = useState(true)
   const [showNotif, setShowNotif] = useState(false)
+
+  const cookies = new Cookies(null, { path : "/"})
 
   useEffect(()=> {
 
@@ -27,8 +30,23 @@ function App() {
 
   }, [loading])
 
+
+  const [result, setResult] = useState(null);
+  const worker = new Worker(new URL('./worker.js', import.meta.url))
+
+
+  const startImageWorker = () => {
+    return worker;
+  }
+
+  const contextValue = {
+      loadingState : [loading, setLoading],
+      startWorker : startImageWorker,
+  }
+
+
   return (
-    <ImageLoading.Provider value={[loading, setLoading]} >
+    <ImageLoading.Provider value={contextValue} >
 
       {(showNotif) &&
         (<NotificationCmp title="Image Done" message="Your message is done loading" setShowNotif={setShowNotif}/>)

@@ -9,8 +9,9 @@ import UserInfo from '../../components/userInfo/userInfo.jsx'
 
 import API from "../../utils/api";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+
 
 import Cookies from "universal-cookie";
 
@@ -30,6 +31,7 @@ export default function Home() {
 
 
     useEffect(()=> {
+
         async function getPosts(){
             setAllPosts(await API.getAllPosts())
         }

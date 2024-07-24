@@ -59,6 +59,7 @@ export default function NewImage () {
             if (cookies.get('currentUser')){
                 const allUserImages = await API.getUserImages(cookies.get('currentUser').id);
 
+
                 const combinedImages = [...allUserImages, ...cookies.get('images')]
                 // ensure that combines images are unique
                 const uniqueImagesList =  uniqueImages(combinedImages)
@@ -91,7 +92,7 @@ export default function NewImage () {
 
         cookies.set("images", [])
         getImageRef.current.disabled = false;
-        setCurrentImage(imageData)
+        setCurrentImage(image)
     }
 
     return (

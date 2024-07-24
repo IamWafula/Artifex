@@ -3,14 +3,18 @@ import styles from "./image.module.css"
 
 import Cookies from "universal-cookie"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faL, faTrash } from "@fortawesome/free-solid-svg-icons"
 
 import API from "../../utils/api"
 
 import { ImageLoading } from "../../App"
 
+import sgMail from '@sendgrid/mail'
+
+
 async function getImageUrl (id) {
     const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`
+
 
     let options = {
         method: "GET",
@@ -62,7 +66,8 @@ export default function  ArtImage(props) {
     const [imageUrl, setImageUrl] = useState(imageData.imgUrl)
     const [isVisible, setIsVisible] = useState(true)
 
-    const [loading, SetLoading] = useContext(ImageLoading)
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
 
     let waitTimeOut;
     let countingTimeout;
@@ -70,75 +75,38 @@ export default function  ArtImage(props) {
 
     // might keep this state to show remaining time
     // TODO: replace with loading later
-    const [waitTime, setWaitTime] = useState(Infinity)
-    const [finalWait, setFinalWait] = useState(false)
+    const [waitTime, setWaitTime] = useState(Infinity);
+    const [finalWait, setFinalWait] = useState(false);
 
-    const cookies = new Cookies(null, { path : "/"})
-    const userId= cookies.get('currentUser').id
+    const cookies = new Cookies(null, { path : "/"});
+    const userId= cookies.get('currentUser').id;
 
-    async function getImageData(){
-        const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
 
-        props.removeImage(generatedData.genId, image)
 
-        // DID: Use this to fix bug when loading new image
-        setAllData(image)
-        imageData = image;
+    const sendEmail = () => {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-    }
+        const msg = {
+            to: 'test@example.com',
+            from: 'test@example.com', // Use the email address or domain you verified above
+            subject: 'Sending with Twilio SendGrid is Fun',
+            text: 'and easy to do anywhere, even with Node.js',
+            html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+        };
 
-    /*
-        Recursive function to get firebase image url
-        Only called when image is still processing
-    */
-    async function setTimeoutFunction (wait) {
-        const data = await getImageUrl(imageData.id)
-        console.log(data, generatedData)
-        if (data.error) {return}
+        (async () => {
+            try {
+                await sgMail.send(msg);
+            } catch (error) {
+                console.error(error);
 
-        if (data.wait_time >= 0){
-
-            setWaitTime(data.wait_time)
-            let counter = data.wait_time;
-            clearInterval(countingTimeout);
-            countingTimeout = setInterval(()=> {
-                counter -= 1
-                if (counter > 0){
-                    setWaitTime(counter)
-                } else {
-                    clearInterval(countingTimeout)
-                    setFinalWait(!finalWait)
+                if (error.response) {
+                    console.error(error.response.body)
                 }
-            }, 1200)
-        }
-
-        // TODO: if we get generated image (response from ai horde), insert into database manually
-        if (data.imgUrl) {
-            setAllData(data)
-            setImageUrl(data.imgUrl)
-
-            clearTimeout(waitTimeOut)
-            clearInterval(countingTimeout)
-        }else if (data.generations){
-            if (data.generations.length > 0) {
-                clearTimeout(waitTimeOut)
-                clearInterval(countingTimeout)
-                setImageUrl(data.generations[0].img)
-                setWaitTime(0)
-
-                // set All data after adding to prisma and firebase
-                const tempData = {
-                    'id' : data.generations[0].id,
-                    'genId': generatedData.genId? generatedData.genId : imageData.id,
-                    'imgUrl' : data.generations[0].img,
-                    'userId' : imageData.userId,
-                    'prompt' : imageData.imagePrompt
-                }
-
-                setGenData({...data.generations[0], ...tempData})
             }
-        }
+        })();
     }
+
 
     const handleDelete = async (e) => {
         e.stopPropagation();
@@ -161,17 +129,82 @@ export default function  ArtImage(props) {
 
     useEffect(() => {
 
-        // if data in image is from Ai horde (hasn't been uploaded to firebase yet), add manually
-        if (generatedData.img){
-            if (generatedData.genId){
-                getImageData()
-            }
-            SetLoading(!loading)
-        }
+        const message = {
+            text: 'i hope this works',
+            from: 'you <username@your-email.com>',
+            to: 'someone <someone@your-email.com>, another <another@your-email.com>',
+            cc: 'else <else@your-email.com>',
+            subject: 'testing emailjs',
+            attachment: [
+                { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
+                { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
+            ],
+        };
+
+        // send the message and get a callback with an error or details of the message that was sent
+        client.send(message, function (err, message) {
+            console.log(err || message);
+        });
 
         // if url is not ready, wait for image
-        if (props.prevImage && !imageUrl &&!generatedData.id){
-            setTimeoutFunction(2)
+        if (props.prevImage && !imageUrl && !generatedData.id){
+
+            const worker = startWorker()
+
+
+            let options = {
+                id : imageData.id,
+                generateUrl : `${import.meta.env.VITE_BACKEND_URL}/generate/${imageData.id}`,
+                uploadUrl : `${import.meta.env.VITE_BACKEND_URL}/generate/upload-firebase`,
+                userId : userId,
+                prompt : imageData.imagePrompt
+            }
+
+            if (imageData.id){
+                worker.postMessage(options);
+            }
+
+            worker.onmessage = function (e) {
+                if (e.data.wait_time > 0) {
+                    let counter = e.data.wait_time;
+                    clearInterval(countingTimeout);
+                    countingTimeout = setInterval(()=> {
+                        counter -= 1
+                        if (counter > 0){
+                            setWaitTime(counter)
+                        } else {
+                            clearInterval(countingTimeout)
+                            worker.postMessage(options)
+                        }
+                    }, 1200)
+                // shows image is still generated by Ai Horde
+                } else if (e.data.worker_id){
+
+                    const allData = {...generatedData, ...e.data}
+                    console.log(allData)
+
+                    setGenData(allData)
+                    setImageUrl(e.data.imgUrl)
+                    setFinalWait(!finalWait)
+                } else {
+
+                    if (generatedData.genId && e.data.imgUrl) {
+
+                        // edits the image at the current index to the new stored firebase image
+                        props.removeImage(generatedData.genId, e.data)
+
+                        // DID: Use this to fix bug when loading new image
+                        setAllData(e.data)
+                        imageData = image;
+
+                        SetLoading(!loading)
+                    }
+
+
+
+                }
+            }
+
         }
 
         if (imageData.imgUrl && !props.prevImage) {

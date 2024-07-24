@@ -12,6 +12,7 @@ export default function PostCmp(props){
     // TODO: Date converted to something more legible
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
+    const userId = cookies.get('currentUser').id
     const [navPost, setNavPost] = useState(false)
     const [liked, setLiked] = useState(props.liked)
 
@@ -28,6 +29,7 @@ export default function PostCmp(props){
         e.stopPropagation()
         await API.deletePost(postDetails);
     }
+
 
     return(
         <div className={styles.post}
@@ -52,7 +54,7 @@ export default function PostCmp(props){
                 </div>
 
                 {/* TODO: Add number of likes and status (commissioned?), arrange by date */}
-                {(!props.userPost) &&
+                {(props.post.userId != userId) &&
                     (<div className={styles.likeBtn}>
                         <FontAwesomeIcon onClick={(e)=> {liked?
                             (API.removeLiked(cookies.get('currentUser').id, postDetails.id),
@@ -66,7 +68,7 @@ export default function PostCmp(props){
                     </div>)
                 }
 
-                {(props.userPost) &&
+                {(props.userPost ) &&
                     (<div className={styles.likeBtn}>
                         <FontAwesomeIcon onClick={handleDelete} icon={faTrash} color='rgba(255, 0, 0, 0.451)'/>
                     </div>)
