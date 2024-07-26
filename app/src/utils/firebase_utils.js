@@ -6,9 +6,6 @@ import {uploadString, getStorage, ref, getDownloadURL} from "firebase/storage"
 import { getDoc, getFirestore, setDoc, collection,doc, addDoc, getDocs  } from "firebase/firestore";
 
 
-// Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -110,25 +107,6 @@ const addImage = async (blob, name, user_id) => {
             postId : null,
             prompt : ""
         }
-
-        // const url = `${import.meta.env.VITE_BACKEND_URL}/images`
-        // const options = {
-        //     method: "POST",
-        //     headers: {
-        //         'accept': 'application/json',
-        //         "Content-Type": "application/json",
-        //     },
-        //     body : JSON.stringify({
-        //         image_id : snapshot.metadata.generation,
-        //         downloadUrl : downloadUrl,
-        //         user_id : user_id,
-        //     })
-        // }
-
-        // const response = await fetch(url, options)
-        // const resJson = await response.json()
-
-        // return resJson
     }
 }
 

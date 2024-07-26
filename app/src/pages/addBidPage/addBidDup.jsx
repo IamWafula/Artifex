@@ -33,7 +33,7 @@ export default function AddBid (props){
     const [imagePortfolios, setImagePortfolios] = useState([[], [], []])
 
     const [currentIndex, setCurrentIndex] = useState(0)
-    // put in separate state to force re-renders
+    // TODO: put in separate state to force re-renders
     const [currentImages, setCurrentImages]  = useState([])
 
     //TODO: confusing naming, should switch

@@ -44,7 +44,7 @@ export default function Home() {
     const [search, setSearch] = useState()
 
     useEffect(()=> {
-        // fill in with filter names
+        // filter dictionary, clever way to filter
         const filtered = {
             'oil' : filters[0],
             'photography' : filters[1],

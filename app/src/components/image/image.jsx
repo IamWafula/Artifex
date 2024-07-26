@@ -27,8 +27,7 @@ export default function  ArtImage(props) {
     let countingTimeout;
 
 
-    // might keep this state to show remaining time
-    // TODO: replace with loading later
+    // DID: replaced with loading
     const [waitTime, setWaitTime] = useState(Infinity);
     const [finalWait, setFinalWait] = useState(false);
 

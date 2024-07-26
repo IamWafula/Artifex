@@ -60,7 +60,6 @@ async function addNewImage(image_id, image_url, image_prompt, user_id){
         }
 
 
-    // error handling here
     }
 
 
@@ -204,7 +203,8 @@ routes.post('/', async (req, res) => {
             if (wait_time === 0) {
                 setTimeout(async ()=> {
                     wait_time = await getImageWaitTime(imageId)
-                    console.log(`Waiting time after ${backoff}`, wait_time)
+
+                    // recursively call waittime until its done
                     return reTryWaitTime(wait_time, backoff+1)
                 }, 1000*backoff)
 

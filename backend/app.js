@@ -22,7 +22,7 @@ app.use("/posts",post_routes )
 app.use("/bids", bid_routes)
 
 app.get("/", (req, res) => {
-    return res.json({"response" : "You a'ight"})
+    return res.json({"response" : "Artifex Server is working!"})
 })
 
 // error handling

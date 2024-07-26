@@ -98,12 +98,6 @@ export default function Header(){
                 style={{cursor: 'pointer'}}
             >Artifex</h1>
 
-            {/* <div id={styles.searchBar}>
-                <input id={styles.searchterm} type="text" placeholder="enter search term" />
-                <FontAwesomeIcon icon={faSearch} color="white"/>
-            </div> */}
-
-
             <div id={styles.login}>
                 <FontAwesomeIcon icon={faUser}
 
