@@ -5,7 +5,7 @@ import PostCmp from '../../components/post/post'
 
 import API from "../../utils/api";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 
 import { Navigate, useLocation, useParams } from "react-router-dom";
 import { ImageLoading } from "../../App";
@@ -95,7 +95,7 @@ export default function AddBid (props){
 
                 setImagePortfolios((prev) => {
                     const temp = [...prev];
-                    temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name]])]
+                    temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name + "-" + Date()]])]
                     return temp;
                 })
 
@@ -202,10 +202,11 @@ export default function AddBid (props){
 
                 </div>
 
-                <textarea name="" id="" cols="10" rows="3"
+                <textarea name="" id="" cols="10" rows="10"
                     ref={descRef}
                     onChange={(e)=> {setDescription(e.target.value)}}
                     placeholder= {"Enter images description"}
+
                 ></textarea>
 
                 <button
