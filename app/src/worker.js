@@ -58,6 +58,20 @@ onmessage = async function(e) {
 
     let countingTimeout;
 
+    if (e.data.check){
+        this.self.postMessage(generatedData)
+        return;
+    }
+
+
+    const title = "default Title";
+
+    const options = {
+        body: 'Default message',
+        icon: 'icon-url.png',
+        badge: 'badge-icon-url.png'
+    };
+
     if (imageData.id){
         this.self.postMessage(imageData)
         return;
@@ -89,9 +103,11 @@ onmessage = async function(e) {
             generatedData = ({...data.generations[0], ...tempData})
 
             this.postMessage(generatedData)
+
             const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt, uploadUrl)
-            console.log(image)
+
             imageData = image;
+
 
             this.postMessage(image)
         }

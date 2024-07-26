@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect,useContext, useRef, useState } from "react"
+import { ImageLoading } from "../../App"
+
 import Footer from "../../components/footer/footer"
 import Header from "../../components/header/header"
 import ArtImage from "../../components/image/image"
@@ -54,7 +56,24 @@ export default function NewImage () {
 
     }
 
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
     useEffect( () => {
+
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
+
         async function loadImages(){
             if (cookies.get('currentUser')){
                 const allUserImages = await API.getUserImages(cookies.get('currentUser').id);

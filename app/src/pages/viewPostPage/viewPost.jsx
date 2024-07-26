@@ -5,7 +5,9 @@ import PostCmp from '../../components/post/post'
 
 import API from "../../utils/api";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react"
+import { ImageLoading } from "../../App"
+
 import { Navigate, useLocation, useParams } from "react-router-dom";
 import GenImage from "../../components/genImage/GenImage";
 
@@ -24,7 +26,11 @@ function Bid(props){
         <div className={styles.bid} >
             <div className={styles.bidImgs}>
                 { (images.length > 0) && images.map((image)=> (
-                    <img src={image.imgUrl} />
+                    <img
+                    loading='lazy'
+                    key={image.id}
+                    src={image.imgUrl}
+                    />
                 ))}
             </div>
             <p>{description}</p>
@@ -59,7 +65,23 @@ export default function ViewPost(){
 
     const [navBid, setNavBid] = useState(false)
 
+
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
     useEffect(() => {
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
         async function getData(id){
             const data = await API.getPost(id);
             setPostData(data)
@@ -106,7 +128,7 @@ export default function ViewPost(){
 
             <div id={styles.bids}>
                 {
-                    bids.map((bid) => (<Bid description={bid.description} bid={bid} images={ bid['portfolioItems'][imageIdxs[1]].image} />))
+                    bids.map((bid) => (<Bid key={bid.id} description={bid.description} bid={bid} images={ bid['portfolioItems'][imageIdxs[1]].image} />))
                 }
 
                 {

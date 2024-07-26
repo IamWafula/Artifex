@@ -23,6 +23,7 @@ export default function GenImage (props) {
             <div className={`${styles.outline}`} >
                 <img className={styles.main_image} src={`${props.image.imgUrl}`} height={dim} width={dim}
                     onClick={props.customOnClick}
+                    loading="lazy"
                 />
                     {
                         (!side) &&
@@ -48,7 +49,7 @@ export default function GenImage (props) {
                 }
 
 
-                <img className={styles.main_image} src={`${props.image.imgUrl}`} height="120" width="120" />
+                <img loading="lazy" className={styles.main_image} src={`${props.image.imgUrl}`} height="120" width="120" />
             </div>
         )
     }

@@ -8,7 +8,8 @@ import MenuBar from '../../components/menubar/menuBar.jsx'
 
 import API from "../../utils/api";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useContext,  useState } from "react";
+import { ImageLoading } from "../../App"
 import { Navigate, useLocation } from "react-router-dom";
 
 import Cookies from "universal-cookie";
@@ -27,7 +28,6 @@ function Bid(props){
     for (let i in images){
 
         for (let j in images[i].image){
-            console.log(images[i].image[j])
 
             allImages.push(images[i].image[j])
         }
@@ -39,7 +39,9 @@ function Bid(props){
         <div className={styles.bid} >
             <div className={styles.bidImgs}>
                 { (allImages.length > 0) && allImages.map((image)=> (
-                    <img src={image.imgUrl} />
+                    <img loading='lazy'
+                    src={image.imgUrl}
+                    />
                 ))}
             </div>
             <p>{description}</p>
@@ -69,7 +71,24 @@ export default function Profile () {
     const [userBids, setUserBids] = useState([])
     const [allImages, setAllImages] = useState([])
 
+
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
     useEffect(()=> {
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
+
         async function getUserData(){
             setUserPosts(await API.getUserPosts(user.id))
 
@@ -161,7 +180,12 @@ export default function Profile () {
 
                     {
                         allImages.map((image) => {
-                            return (<img className={styles.portImage} src={image.imgUrl} />)
+                            return (<img
+                                loading="lazy"
+                                alt="Portfolio image"
+                                className={styles.portImage}
+                                src={image.imgUrl}
+                                />)
 
                         })
                     }

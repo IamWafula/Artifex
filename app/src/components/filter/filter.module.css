@@ -59,6 +59,8 @@
     .selections{
         display: flex;
         flex-direction: column;
+        padding-top: 10px;
+        transition: 0.2s ease-in-out;
 
         .container {
             display: block;
@@ -74,6 +76,10 @@
             color: white;
             font-family: sans-serif;
             font-weight: bolder;
+        }
+
+        button {
+            font-size: small;
         }
 
         /* Hide the browser's default checkbox */

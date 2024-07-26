@@ -25,8 +25,7 @@
 
 .bid {
   width: 600px;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid rgb(255, 255, 255);
   color: white;
   font-family: sans-serif;
   /* background-color: rgba(245, 222, 179, 0.346);

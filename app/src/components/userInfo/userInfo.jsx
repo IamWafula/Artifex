@@ -6,7 +6,6 @@ import Rating from "../rating/rating"
 export default function UserInfo(props){
 
     const cookies = new Cookies(null, {path: "/"})
-    console.log(cookies.get('currentUser'))
 
     return (
     <div id={styles.userInfoCmp}>

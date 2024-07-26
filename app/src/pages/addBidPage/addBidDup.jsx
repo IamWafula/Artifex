@@ -5,7 +5,9 @@ import PostCmp from '../../components/post/post'
 
 import API from "../../utils/api";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useContext,  useState } from "react";
+import { ImageLoading } from "../../App"
+
 import { Navigate, useLocation, useParams } from "react-router-dom";
 import GenImage from "../../components/genImage/GenImage";
 
@@ -45,8 +47,24 @@ export default function AddBid (props){
 
     const [finish, setFinish] = useState(false)
 
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
     // TODO: this is a re-fetch, find ways to optimize
     useEffect(() => {
+
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
         async function getData(id){
             const data = await API.getPost(id);
             setPostData(data)

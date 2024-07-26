@@ -43,7 +43,7 @@ export default function PostCmp(props){
                 )
             }
             <div className={styles.images}>
-                <img src={postDetails.images[imageIdx].imgUrl} />
+                <img loading='lazy' src={postDetails.images[imageIdx].imgUrl} />
             </div>
 
             <div className={styles.details_container}>
@@ -80,7 +80,7 @@ export default function PostCmp(props){
                             <p>{postDetails.user.userName}</p>
                             <Rating rating={postDetails.user.userRating} />
                         </div>
-                        <img src={postDetails.user.profileImage} />
+                        <img loading='lazy' src={postDetails.user.profileImage} />
                     </div>)
                 }
 

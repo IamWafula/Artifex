@@ -9,52 +9,6 @@ import API from "../../utils/api"
 
 import { ImageLoading } from "../../App"
 
-import sgMail from '@sendgrid/mail'
-
-
-async function getImageUrl (id) {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`
-
-
-    let options = {
-        method: "GET",
-        headers: {
-            'accept': 'application/json',
-            "Content-Type": "application/json",
-        }
-    }
-
-    const response = await fetch(url, options)
-    const resJson = await response.json()
-
-    return resJson
-}
-
-/*
-    Function to manually add Image to Firebase storage
-*/
-async function addImageManually (id, image, user, prompt ) {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/generate/upload-firebase`
-
-    let options = {
-        method: "POST",
-        headers: {
-            'accept': 'application/json',
-            "Content-Type": "application/json",
-        },
-        body : JSON.stringify({
-            'imageUrl' : image,
-            'imageId' : id,
-            'imagePrompt' : prompt,
-            'userId' : user
-        })
-    }
-
-    const response = await fetch(url, options)
-    const resJson = await response.json()
-
-    return resJson
-}
 
 
 export default function  ArtImage(props) {
@@ -82,32 +36,6 @@ export default function  ArtImage(props) {
     const userId= cookies.get('currentUser').id;
 
 
-
-    const sendEmail = () => {
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-        const msg = {
-            to: 'test@example.com',
-            from: 'test@example.com', // Use the email address or domain you verified above
-            subject: 'Sending with Twilio SendGrid is Fun',
-            text: 'and easy to do anywhere, even with Node.js',
-            html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-        };
-
-        (async () => {
-            try {
-                await sgMail.send(msg);
-            } catch (error) {
-                console.error(error);
-
-                if (error.response) {
-                    console.error(error.response.body)
-                }
-            }
-        })();
-    }
-
-
     const handleDelete = async (e) => {
         e.stopPropagation();
         setIsVisible(false)
@@ -128,23 +56,6 @@ export default function  ArtImage(props) {
 
 
     useEffect(() => {
-
-        const message = {
-            text: 'i hope this works',
-            from: 'you <username@your-email.com>',
-            to: 'someone <someone@your-email.com>, another <another@your-email.com>',
-            cc: 'else <else@your-email.com>',
-            subject: 'testing emailjs',
-            attachment: [
-                { data: '<html>i <i>hope</i> this works!</html>', alternative: true },
-                { path: 'path/to/file.zip', type: 'application/zip', name: 'renamed.zip' },
-            ],
-        };
-
-        // send the message and get a callback with an error or details of the message that was sent
-        client.send(message, function (err, message) {
-            console.log(err || message);
-        });
 
         // if url is not ready, wait for image
         if (props.prevImage && !imageUrl && !generatedData.id){
@@ -181,23 +92,23 @@ export default function  ArtImage(props) {
                 } else if (e.data.worker_id){
 
                     const allData = {...generatedData, ...e.data}
-                    console.log(allData)
 
                     setGenData(allData)
                     setImageUrl(e.data.imgUrl)
                     setFinalWait(!finalWait)
+
                 } else {
 
                     if (generatedData.genId && e.data.imgUrl) {
+
 
                         // edits the image at the current index to the new stored firebase image
                         props.removeImage(generatedData.genId, e.data)
 
                         // DID: Use this to fix bug when loading new image
                         setAllData(e.data)
-                        imageData = image;
+                        imageData = e.data;
 
-                        SetLoading(!loading)
                     }
 
 

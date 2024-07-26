@@ -9,7 +9,9 @@ import UserInfo from '../../components/userInfo/userInfo.jsx'
 
 import API from "../../utils/api";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useContext,  useState } from "react";
+import { ImageLoading } from "../../App"
+
 import { Navigate, useLocation } from "react-router-dom";
 
 
@@ -25,15 +27,76 @@ export default function Home() {
     const [navNewPost, setNaveNewPost] = useState(false)
     const [showAllPosts, setShowAllPosts] = useState(true)
     const [allPosts, setAllPosts] = useState([])
+
+    // store state with posts not filtered or changed so we dont re-fetch
+    const [allPostsOriginal, setAllPostsOriginal] = useState([])
+
     const [recommendations, setRecommendations] = useState([])
     const [likedPosts, setLikedPosts] = useState([])
 
 
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
+    const [filters, setFilters] = useState([])
+    const [search, setSearch] = useState()
+
+    useEffect(()=> {
+        // fill in with filter names
+        const filtered = {
+            'oil' : filters[0],
+            'photography' : filters[1],
+            'pixel' : filters[2],
+            '3D' : filters[3],
+            'digital art' : filters[4]
+        }
+
+
+        if (search){
+            setAllPosts((prev) => {
+                let temp = [...prev];
+
+                temp = temp.filter((post) => {
+                    return (post.title.toLowerCase().includes(search.toLowerCase()) || post.description.toLowerCase().includes(search.toLowerCase()))
+                })
+                return temp
+            })
+        } else {
+            setAllPosts(allPostsOriginal)
+        }
+
+
+        setAllPosts((prev) => {
+            let temp = prev;
+
+            temp = temp.filter((post) => {
+                return (filtered[post.category])
+            })
+
+            return temp;
+        })
+
+    }, [filters, search])
 
     useEffect(()=> {
 
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
+
         async function getPosts(){
-            setAllPosts(await API.getAllPosts())
+            const fetchedPosts = await API.getAllPosts()
+            setAllPosts(fetchedPosts)
+            setAllPostsOriginal(fetchedPosts)
         }
 
         async function getRecs(){
@@ -115,7 +178,7 @@ export default function Home() {
             </div>
 
             <div id={styles.filters}>
-                <Filter />
+                <Filter setSearch={setSearch} setFilters={setFilters} />
                 <UserInfo />
             </div>
 
