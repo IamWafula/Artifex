@@ -94,3 +94,33 @@ class Graph:
             recs.extend(node[2])
 
         return recs
+
+def graphTests():
+    user1 = User("user1")
+    user2 = User("user2")
+    user3 = User("user3")
+    user4 = User("user4")
+
+    post1 = Post("post1")
+    post2 = Post("post2")
+    post3 = Post("post3")
+    post4 = Post("post4")
+
+    user1.addNeighbors([post1, post2, post3])
+    user2.addNeighbors([post1, post2, post3])
+    user2.addNeighbors([post4])
+    
+    user3.addNeighbor(post1)
+
+    user4.addNeighbor(post3)
+
+    graph = Graph()
+    graph.addNodes([post1, post2, post3,post4, user1, user2, user3, user4])
+    
+    # check all neighbors exist when fetching by id
+    assert [post in graph.getNode('user1').getNeighbors() for post in [post1, post2, post3]] == [True, True, True]
+    # since they have common post likes, user 1 should be a top neighbor to user 2
+    assert user1 in graph.getTopNeighbors(user2)[0]
+    # the only recommendation to user1 should be the other post of user 2 they havent liked
+    assert graph.getRecommendations(user1)[0] == post4
+    

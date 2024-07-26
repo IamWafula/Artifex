@@ -287,3 +287,53 @@ def getPostRecommendations(user_recs, user_likes, weights, n, post_matrix):
     recommendations = list(liked_recs) + list(similar_user_recs)
     
     return recommendations
+
+def postRecTests():
+    """
+        Text Similarity Tests
+    """
+    text1 = "A big bad apple"
+    text2 = "The dog jumps hard"
+    text3 = "an apple bad big"
+
+    # testing text similarities
+    text_marix = getTextSimilarity([text1, text2, text3], 1)
+    assert text_marix[0][0] == text_marix[1][1] == text_marix[2][2] == 1.0
+    assert text_marix[0][2] >  text_marix[0][1]
+    
+    phrase_1 = "I like piggy backs rather than riding on horse back because it is less frightening"
+    phrase_2 = "The quick brown fox jumps over the lazy horse"
+    phrase_3 = "I understand that you like piggy backs but for me riding on a horse is more frightening"
+    
+    phrase_marix = getTextSimilarity([phrase_1, phrase_2, phrase_3], 2)
+    assert phrase_marix[0][0] == phrase_marix[1][1] == phrase_marix[2][2] == 1.0
+    assert phrase_marix[0][2] >  phrase_marix[0][1]
+    
+    # update the number n to 3 for 3 word counts per phrase
+    phrase_marix = getTextSimilarity([phrase_1, phrase_2, phrase_3], 3)
+    assert phrase_marix[0][0] == phrase_marix[1][1] == phrase_marix[2][2] == 1.0
+    assert phrase_marix[0][2] >  phrase_marix[0][1]
+    
+    
+    """
+        Numerical Similarity Tests
+    """
+    num_1 = 1
+    num_2 = 2    
+    num_5 = 5
+    
+    num_1k = 1000
+    num_10k = 10_000
+    num_100k = 100_000
+    
+    num_similarity1_2 = calculateNumSimilarity(num_1, num_2)
+    num_similarity1_5 = calculateNumSimilarity(num_1, num_5)
+    
+    num_similarity_1k_10k = calculateNumSimilarity(num_1k, num_10k)
+    num_similarity_1k_100k = calculateNumSimilarity(num_1k, num_100k)
+    
+    assert num_similarity1_2 > num_similarity1_5
+    assert num_similarity_1k_10k > num_similarity_1k_100k
+    # smaller differences are weighted more than larger ones, although numerically smaller
+    assert num_similarity1_2 > num_similarity_1k_10k     
+    
