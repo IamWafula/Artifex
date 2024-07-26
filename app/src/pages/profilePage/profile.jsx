@@ -73,7 +73,9 @@ export default function Profile () {
 
 
     const {loadingState, startWorker} = useContext(ImageLoading)
+    // generated image loading
     const [loading, SetLoading] = loadingState;
+
 
     useEffect(()=> {
         const worker = startWorker()
@@ -184,7 +186,8 @@ export default function Profile () {
                                 loading="lazy"
                                 alt="Portfolio image"
                                 className={styles.portImage}
-                                src={image.imgUrl}
+                                onLoad={(e)=> {e.target.src = image.imgUrl}}
+                                src={"https://archive.org/download/placeholder-image/placeholder-image.jpg"}
                                 />)
 
                         })

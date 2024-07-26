@@ -9,13 +9,15 @@ import UserInfo from '../../components/userInfo/userInfo.jsx'
 
 import API from "../../utils/api";
 
-import { useEffect, useRef, useContext,  useState } from "react";
+import { useEffect, useRef, useContext,  useState, Suspense } from "react";
 import { ImageLoading } from "../../App"
 
 import { Navigate, useLocation } from "react-router-dom";
 
 
 import Cookies from "universal-cookie";
+
+
 
 export default function Home() {
 
@@ -174,8 +176,8 @@ export default function Home() {
                         return( <PostCmp key={post.id} post={post} liked={checkLiked(post)} /> )
                     })
                 }
-
             </div>
+
 
             <div id={styles.filters}>
                 <Filter setSearch={setSearch} setFilters={setFilters} />

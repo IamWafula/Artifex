@@ -103,11 +103,13 @@ export default function  ArtImage(props) {
 
 
                         // edits the image at the current index to the new stored firebase image
+                        SetLoading(false)
                         props.removeImage(generatedData.genId, e.data)
 
                         // DID: Use this to fix bug when loading new image
                         setAllData(e.data)
                         imageData = e.data;
+
 
                     }
 
