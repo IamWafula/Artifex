@@ -4,7 +4,9 @@ import Header from "../../components/header/header"
 import styles from "./pendingPosts.module.css"
 
 import { Navigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+
+import { useContext, useEffect, useState } from "react"
+import { ImageLoading } from "../../App"
 
 import Cookies from "universal-cookie";
 import API from "../../utils/api";
@@ -54,6 +56,23 @@ export default function PendingPosts () {
         "photography" : "Photography"
     }
 
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
+    useEffect(()=> {
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+    }, [])
+
     return (
         <div id={styles.newpost}>
             <Header />
@@ -76,7 +95,12 @@ export default function PendingPosts () {
 
             <div id={styles.image} >
                 {(!currentImage)&&(
-                    <img className={styles.main_image} src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg" height="480" width="480" />
+                    <img className={styles.main_image}
+                    src="https://media-cldnry.s-nbcnews.com/image/upload/rockcms/2024-05/240515-mona-lisa-mb-1241-e9b88e.jpg"
+                    height="480"
+                    width="480"
+                    loading="lazy"
+                     />
                 )}
 
                 {(currentImage)&&(

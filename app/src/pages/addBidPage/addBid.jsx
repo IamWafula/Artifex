@@ -5,8 +5,11 @@ import PostCmp from '../../components/post/post'
 
 import API from "../../utils/api";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
+
 import { Navigate, useLocation, useParams } from "react-router-dom";
+import { ImageLoading } from "../../App";
+
 import GenImage from "../../components/genImage/GenImage";
 
 import Cookies from "universal-cookie";
@@ -47,8 +50,24 @@ export default function AddBid (props){
     const [finish, setFinish] = useState(false)
     const [navHome, setNavHome] = useState(false)
 
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
+
     // TODO: this is a re-fetch, find ways to optimize
     useEffect(() => {
+
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
         async function getData(id){
             const data = await API.getPost(id);
             setPostData(data)
@@ -76,7 +95,7 @@ export default function AddBid (props){
 
                 setImagePortfolios((prev) => {
                     const temp = [...prev];
-                    temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name]])]
+                    temp[currentIndex] = [...new Set([...temp[currentIndex], [result, file.name + "-" + Date()]])]
                     return temp;
                 })
 
@@ -183,10 +202,11 @@ export default function AddBid (props){
 
                 </div>
 
-                <textarea name="" id="" cols="10" rows="3"
+                <textarea name="" id="" cols="10" rows="10"
                     ref={descRef}
                     onChange={(e)=> {setDescription(e.target.value)}}
                     placeholder= {"Enter images description"}
+
                 ></textarea>
 
                 <button

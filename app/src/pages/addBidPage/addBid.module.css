@@ -3,6 +3,10 @@
     width: 100%;
     display: grid;
     align-items: center;
+    background-image: url("../../../assets/bk-trial.png");
+    background-size: cover;
+    object-fit: contain;
+
     justify-items: center;
 
     grid-template-areas:
@@ -34,6 +38,11 @@
         }
     }
 
+    #postDetails {
+        font-family: sans-serif;
+        color: white;
+    }
+
     max-width: 480px;
 }
 
@@ -45,16 +54,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: white;
 
     textarea{
         width: 80%;
         padding-top: 20px;
+        border-radius: 20px;
+        resize: none;
+
+        background: rgba(188, 188, 188, 0.25);
+        border: 0px;
+        border-bottom: 1px solid rgb(23, 23, 23);
+        padding-left: 10px;
+
+        color: white;
+    }
+
+    textarea:focus{
+        outline: none;
     }
 }
 
 #addImages{
     width: 100px;
-    background-color: rgb(98, 111, 229);
+    background-color: #fa6400a5;
     cursor: pointer;
     border-radius: 20px;
     display: flex;
@@ -78,6 +101,8 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    color: white;
+    padding-left: 10px;
 
     .imagePreview {
         height: 50px;

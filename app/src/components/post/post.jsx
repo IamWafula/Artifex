@@ -3,7 +3,7 @@ import { faHeart, faTrash } from '@fortawesome/free-solid-svg-icons'
 import Rating from '../rating/rating'
 import styles from  './post.module.css'
 import Cookies from 'universal-cookie'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 
 import API from '../../utils/api'
 import { Navigate } from 'react-router-dom'
@@ -12,8 +12,11 @@ export default function PostCmp(props){
     // TODO: Date converted to something more legible
     const postDetails = props.post
     const cookies = new Cookies(null, { path : "/"})
+    const userId = cookies.get('currentUser').id
     const [navPost, setNavPost] = useState(false)
     const [liked, setLiked] = useState(props.liked)
+
+    const [loaded, setLoaded] = useState(false)
 
     const imageIdx = Math.floor(Math.random()*2)
 
@@ -29,6 +32,28 @@ export default function PostCmp(props){
         await API.deletePost(postDetails);
     }
 
+    if (!loaded){
+        return(
+            <div className={styles.post}
+
+            onClick={()=>{setNavPost(true)}}
+
+            >
+            {
+                (navPost) && (
+                    <Navigate to={`/post/${postDetails.id}`} />
+                )
+            }
+            <div className={styles.images}>
+                <img loading='lazy' onLoad={()=>(setLoaded(true))} src={"https://archive.org/download/placeholder-image/placeholder-image.jpg"} />
+            </div>
+
+
+        </div>
+        )
+    }
+
+
     return(
         <div className={styles.post}
 
@@ -41,7 +66,7 @@ export default function PostCmp(props){
                 )
             }
             <div className={styles.images}>
-                <img src={postDetails.images[imageIdx].imgUrl} />
+                <img loading='lazy' onLoad={() => (setLoaded(true))} src={postDetails.images[imageIdx].imgUrl} />
             </div>
 
             <div className={styles.details_container}>
@@ -52,7 +77,7 @@ export default function PostCmp(props){
                 </div>
 
                 {/* TODO: Add number of likes and status (commissioned?), arrange by date */}
-                {(!props.userPost) &&
+                {(props.post.userId != userId) &&
                     (<div className={styles.likeBtn}>
                         <FontAwesomeIcon onClick={(e)=> {liked?
                             (API.removeLiked(cookies.get('currentUser').id, postDetails.id),
@@ -66,7 +91,7 @@ export default function PostCmp(props){
                     </div>)
                 }
 
-                {(props.userPost) &&
+                {(props.userPost ) &&
                     (<div className={styles.likeBtn}>
                         <FontAwesomeIcon onClick={handleDelete} icon={faTrash} color='rgba(255, 0, 0, 0.451)'/>
                     </div>)
@@ -78,7 +103,7 @@ export default function PostCmp(props){
                             <p>{postDetails.user.userName}</p>
                             <Rating rating={postDetails.user.userRating} />
                         </div>
-                        <img src={postDetails.user.profileImage} />
+                        <img loading='lazy' src={postDetails.user.profileImage} />
                     </div>)
                 }
 

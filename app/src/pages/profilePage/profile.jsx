@@ -5,12 +5,55 @@ import PostCmp from '../../components/post/post'
 import Filter from '../../components/filter/Filter.jsx'
 import MenuBar from '../../components/menubar/menuBar.jsx'
 
+
 import API from "../../utils/api";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useContext,  useState } from "react";
+import { ImageLoading } from "../../App"
 import { Navigate, useLocation } from "react-router-dom";
 
 import Cookies from "universal-cookie";
+
+
+function Bid(props){
+    const cookies = new Cookies("/", {path : null})
+    const currentUserId = cookies.get("currentUser").id
+
+    const {description, images} = props;
+    const bid = {...props.bid, ...{'posterId': currentUserId}}
+    const commissioned = bid.commissionId ? true : false
+
+    let allImages = []
+
+    for (let i in images){
+
+        for (let j in images[i].image){
+
+            allImages.push(images[i].image[j])
+        }
+
+    }
+
+
+    return (
+        <div className={styles.bid} >
+            <div className={styles.bidImgs}>
+                { (allImages.length > 0) && allImages.map((image)=> (
+                    <img loading='lazy'
+                    src={image.imgUrl}
+                    />
+                ))}
+            </div>
+            <p>{description}</p>
+
+            {
+                (commissioned) && (
+                    <p> Commissioned! </p>
+                )
+            }
+        </div>
+    )
+}
 
 export default function Profile () {
 
@@ -25,10 +68,35 @@ export default function Profile () {
     const [navNewPost, setNaveNewPost] = useState(false)
 
     const [userPosts, setUserPosts] = useState(cookies.get("userPosts")? cookies.get("userPosts") : [])
+    const [userBids, setUserBids] = useState([])
+    const [allImages, setAllImages] = useState([])
+
+
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    // generated image loading
+    const [loading, SetLoading] = loadingState;
+
 
     useEffect(()=> {
-        async function getPosts(){
+        const worker = startWorker()
+
+        worker.postMessage({
+            check: true
+        })
+
+        worker.onmessage = function (e) {
+            if (e.data.imgUrl){
+                SetLoading(false)
+            }
+        }
+
+
+        async function getUserData(){
             setUserPosts(await API.getUserPosts(user.id))
+
+            setUserBids(await API.getUserBids(user.id))
+
+            setAllImages(await API.getAllUserImages(user.id))
 
 
             const lastRun = await API.getLastRecommendationRun()
@@ -39,7 +107,7 @@ export default function Profile () {
             }
         }
 
-        getPosts()
+        getUserData()
     }, [])
 
     return(
@@ -92,7 +160,7 @@ export default function Profile () {
                         setShowPosts(false)
                     }}
                 >
-                    <p>Active Commissions</p>
+                    <p>All Images</p>
                     <div  className={styles.underline}
                     style={{ backgroundColor: showCommissions? "rgb(80, 80, 80)"  : ""}}>
                     </div>
@@ -102,11 +170,28 @@ export default function Profile () {
             {(showBids) &&
                 <div id={styles.content}>
 
+                {
+                    userBids.map((bid) => (<Bid description={bid.description} bid={bid} images={ bid['portfolioItems']} />))
+                }
+
                 </div>
             }
 
             {(showCommissions) &&
-                <div id={styles.content}>
+                <div id={styles.portFolio}>
+
+                    {
+                        allImages.map((image) => {
+                            return (<img
+                                loading="lazy"
+                                alt="Portfolio image"
+                                className={styles.portImage}
+                                onLoad={(e)=> {e.target.src = image.imgUrl}}
+                                src={"https://archive.org/download/placeholder-image/placeholder-image.jpg"}
+                                />)
+
+                        })
+                    }
 
                 </div>
             }

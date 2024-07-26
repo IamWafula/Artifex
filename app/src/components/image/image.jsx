@@ -1,50 +1,14 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import styles from "./image.module.css"
 
 import Cookies from "universal-cookie"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faL, faTrash } from "@fortawesome/free-solid-svg-icons"
 
-async function getImageUrl (id) {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/generate/${id}`
+import API from "../../utils/api"
 
-    let options = {
-        method: "GET",
-        headers: {
-            'accept': 'application/json',
-            "Content-Type": "application/json",
-        }
-    }
+import { ImageLoading } from "../../App"
 
-    const response = await fetch(url, options)
-    const resJson = await response.json()
-
-    return resJson
-}
-
-/*
-    Function to manually add Image to Firebase storage
-*/
-async function addImageManually (id, image, user, prompt ) {
-    const url = `${import.meta.env.VITE_BACKEND_URL}/generate/upload-firebase`
-
-    let options = {
-        method: "POST",
-        headers: {
-            'accept': 'application/json',
-            "Content-Type": "application/json",
-        },
-        body : JSON.stringify({
-            'imageUrl' : image,
-            'imageId' : id,
-            'imagePrompt' : prompt,
-            'userId' : user
-        })
-    }
-
-    const response = await fetch(url, options)
-    const resJson = await response.json()
-
-    return resJson
-}
 
 
 export default function  ArtImage(props) {
@@ -54,9 +18,10 @@ export default function  ArtImage(props) {
 
     let imageData = allData? props.imageData : allData;
     const [imageUrl, setImageUrl] = useState(imageData.imgUrl)
+    const [isVisible, setIsVisible] = useState(true)
 
-    const [finalWait, setFinalWait] = useState(false)
-
+    const {loadingState, startWorker} = useContext(ImageLoading)
+    const [loading, SetLoading] = loadingState;
 
     let waitTimeOut;
     let countingTimeout;
@@ -64,88 +29,95 @@ export default function  ArtImage(props) {
 
     // might keep this state to show remaining time
     // TODO: replace with loading later
-    const [waitTime, setWaitTime] = useState(Infinity)
+    const [waitTime, setWaitTime] = useState(Infinity);
+    const [finalWait, setFinalWait] = useState(false);
 
-    const cookies = new Cookies(null, { path : "/"})
+    const cookies = new Cookies(null, { path : "/"});
+    const userId= cookies.get('currentUser').id;
 
-    /*
-        Recursive function to get firebase image url
-        Only called when image is still processing
-    */
-    async function setTimeoutFunction (wait) {
-        const data = await getImageUrl(imageData.id)
-        if (data.error) {return}
 
-        if (data.wait_time >= 0 && data.wait_time != Infinity){
-            setWaitTime(data.wait_time)
-            let counter = data.wait_time;
-            clearInterval(countingTimeout);
-            countingTimeout = setInterval(()=> {
-                counter -= 1
-                if (counter > 0){
-                    setWaitTime(counter)
-                } else {
-                    clearInterval(countingTimeout)
-                    setTimeoutFunction(Infinity)
-                }
-            }, 1000)
-        }
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        setIsVisible(false)
 
-        // TODO: if we get generated image (response from ai horde), insert into database manually
-        if (data.imgUrl) {
-            setAllData(data)
-            setImageUrl(data.imgUrl)
+        const allCookies = cookies.get('images')
+        cookies.set('images', allCookies.filter((image) => {return image.id != imageData.id}))
 
-            clearTimeout(waitTimeOut)
-            clearInterval(countingTimeout)
-        }else if (data.generations){
-            if (data.generations.length > 0) {
-                clearTimeout(waitTimeOut)
-                clearInterval(countingTimeout)
-                setImageUrl(data.generations[0].img)
-                setWaitTime(0)
+        await API.deleteImage(imageData.id)
 
-                // set All data after adding to prisma and firebase
-                const tempData = {
-                    'id' : data.generations[0].id,
-                    'genId': generatedData.genId? generatedData.genId : imageData.id,
-                    'imgUrl' : data.generations[0].img,
-                    'userId' : imageData.userId,
-                    'prompt' : imageData.imagePrompt
-                }
-
-                setGenData({...data.generations[0], ...tempData})
-            }
-        }
     }
 
-
-    useEffect(() => {
-        const userId= cookies.get('currentUser').id
+    useEffect(()=> {
         if (!generatedData.genId){
             setGenData({"genId" : imageData.id})
         }
 
-        async function getImageData(){
-            const image = await addImageManually(generatedData.id, generatedData.img, userId, generatedData.prompt)
+    }, [])
 
-            props.removeImage(generatedData.genId, image)
 
-            // TODO: Use this somehow, bug when loading new image
-            setAllData(image)
-            imageData = image;
-        }
-
-        // if data in image is from Ai horde (hasn't been uploaded to firebase yet), add manually
-        if (generatedData.img){
-            if (generatedData.genId){
-                getImageData()
-            }
-        }
+    useEffect(() => {
 
         // if url is not ready, wait for image
-        if (props.prevImage && !imageUrl){
-            setTimeoutFunction(2)
+        if (props.prevImage && !imageUrl && !generatedData.id){
+
+            const worker = startWorker()
+
+
+            let options = {
+                id : imageData.id,
+                generateUrl : `${import.meta.env.VITE_BACKEND_URL}/generate/${imageData.id}`,
+                uploadUrl : `${import.meta.env.VITE_BACKEND_URL}/generate/upload-firebase`,
+                userId : userId,
+                prompt : imageData.imagePrompt
+            }
+
+            if (imageData.id){
+                worker.postMessage(options);
+            }
+
+            worker.onmessage = function (e) {
+                if (e.data.wait_time > 0) {
+                    let counter = e.data.wait_time;
+                    clearInterval(countingTimeout);
+                    countingTimeout = setInterval(()=> {
+                        counter -= 1
+                        if (counter > 0){
+                            setWaitTime(counter)
+                        } else {
+                            clearInterval(countingTimeout)
+                            worker.postMessage(options)
+                        }
+                    }, 1200)
+                // shows image is still generated by Ai Horde
+                } else if (e.data.worker_id){
+
+                    const allData = {...generatedData, ...e.data}
+
+                    setGenData(allData)
+                    setImageUrl(e.data.imgUrl)
+                    setFinalWait(!finalWait)
+
+                } else {
+
+                    if (generatedData.genId && e.data.imgUrl) {
+
+
+                        // edits the image at the current index to the new stored firebase image
+                        SetLoading(false)
+                        props.removeImage(generatedData.genId, e.data)
+
+                        // DID: Use this to fix bug when loading new image
+                        setAllData(e.data)
+                        imageData = e.data;
+
+
+                    }
+
+
+
+                }
+            }
+
         }
 
         if (imageData.imgUrl && !props.prevImage) {
@@ -162,7 +134,11 @@ export default function  ArtImage(props) {
 
 
 
-    }, [imageData, finalWait, props.selectedImages])
+    }, [imageData,finalWait,generatedData, props.selectedImages])
+
+    if (!isVisible){
+        return
+    }
 
 
     return (
@@ -194,6 +170,9 @@ export default function  ArtImage(props) {
               ((waitTime) && (!imageData.imgUrl) && (waitTime != Infinity)) > 0 && (<p>{waitTime}</p>)
             }
 
+            {(props.prevImage && (imageData.imgUrl)) && (<FontAwesomeIcon icon={faTrash} color='rgba(255, 0, 0, 0.745)'
+                onClick={handleDelete}
+            />)}
         </div>
     )
 }

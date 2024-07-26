@@ -26,7 +26,7 @@ export default function Annotation(props){
             style={{
                 left: `${props.note[0]}px`,
                 top: `${props.note[1]}px`,
-                backgroundColor: annText ? 'green' : 'red'
+                backgroundColor: annText ? 'rgb(41, 121, 41)' : 'red'
             }}
             onMouseLeave={()=>{
                 setShowInput(false);

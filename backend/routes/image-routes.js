@@ -27,7 +27,6 @@ async function getAllUserImages(user_id){
 routes.post('/', async(req, res, next) => {
     try {
         const {image_id, downloadUrl, user_id} = req.body;
-        console.log(req.body)
         const newImage = await prisma.image.create({
             data: {
                 id : image_id,
@@ -41,6 +40,19 @@ routes.post('/', async(req, res, next) => {
         console.log(error)
     }
 
+})
+
+routes.delete("/:id", async (req, res, next) => {
+    try {
+        const image_id = req.params.id;
+
+        const image = await prisma.image.delete({
+            where: {
+                id : image_id
+            }
+        })
+    } catch(error){
+    }
 })
 
 
