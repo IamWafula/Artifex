@@ -2,7 +2,7 @@ from flask import Flask, json
 import model.user_rec as userRec
 import model.post_rec as postRec
 
-from model.graph import Graph, User, Post
+from model.graph import Graph, User, Post, graphTests
 
 import utils.backend as dUsers
 
@@ -65,32 +65,19 @@ def run_recommendations():
 """
     Use for testing
 """
-@app.route("/graph")
+@app.route("/tests")
 def run_graph():
-    user1 = User("user1")
-    user2 = User("user2")
-    user3 = User("user3")
-    user4 = User("user4")
 
-    post1 = Post("post1")
-    post2 = Post("post2")
-    post3 = Post("post3")
-
-    user1.addNeighbors([post1, post2, post3])
-    user2.addNeighbors([post1, post2, post3])
-
-    user3.addNeighbor(post1)
-
-    user4.addNeighbor(post3)
-
-    graph = Graph()
-    graph.addNodes([post1, post2, post3, user1, user2, user3, user4])
-
-    for i in graph.getTopNeighbors(user1):
-        print(i[0])
-        for j in i[1]:
-            print(j)
-
+    try:
+        postRec.postRecTests()
+    except:
+        print("Error in post recommendations")
+    
+    try:
+        graphTests()
+    except:
+        print("Error in graph for user recommendations")
+    
     response = app.response_class(
         response=json.dumps({"response" : "Successfully tested graph"}),
         mimetype='application/json'
