@@ -1,5 +1,7 @@
 # Artifex
 
+Open source platform for rapid prototyping for art commissions, developed for Meta University 
+
 Figma wireframe
 [Wireframe](https://www.figma.com/design/C2CY8SHYxxyZVGSO1iVM7W/Artifex---Ian-Wafula-Capstone?m=dev&node-id=0-1)
 
